@@ -11,6 +11,12 @@ export class LanguageService {
   public dictionary = {
     'es': {
       'welcome': '¡Hola! Soy Polly. Toca un botón para comenzar.',
+      'welcome_1': '¡Qué onda! Soy Polly. ¿Listo para explorar Progreso?',
+      'welcome_2': '¡Hola de nuevo! Si buscas los mejores mariscos, yo te ayudo.',
+      'welcome_3': '¡Bienvenido! Yo te guiaré por todo el malecón hoy.',
+      'welcome_4': '¿Sabías que los mejores atardeceres están junto al muelle? ¡Vamos!',
+      'tip_1': '¡Tip de Polly! No olvides tu bloqueador solar si vas a la playa.',
+      'tip_2': '¡Hey! Si vas al malecón, prueba las marquesitas, ¡son deliciosas!',
       'hotels': '¡Excelente elección! Buscando los mejores hoteles...',
       'restaurants': '¡Hmm, qué rico! Veamos dónde comer mariscos.',
       'tourism': '¡Vamos a la costa! Preparando ruta turística.',
@@ -30,6 +36,12 @@ export class LanguageService {
     },
     'en': {
       'welcome': 'Hello! I am Polly. Tap a button to start.',
+      'welcome_1': 'Hey there! I am Polly. Ready to explore Progreso?',
+      'welcome_2': 'Hi! If you are looking for the best seafood, I can help.',
+      'welcome_3': 'Welcome! I will be your guide along the pier today.',
+      'welcome_4': 'Did you know the best sunsets are by the pier? Let\'s go!',
+      'tip_1': 'Polly tip! Don\'t forget your sunscreen if you hit the beach.',
+      'tip_2': 'Hey! If you go to the pier, try the marquesitas, they are delicious!',
       'hotels': 'Great choice! Finding the best hotels...',
       'restaurants': 'Yummy! Let\'s see where to eat seafood.',
       'tourism': 'Let\'s hit the beach! Preparing tourist route.',
