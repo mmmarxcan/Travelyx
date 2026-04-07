@@ -1,0 +1,363 @@
+.map-content {
+    --background: transparent;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+.map-container {
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background: #f0f0f0;
+}
+
+/* ===============================
+   PROPUESTA 3 STYLES (PREMIUM)
+   =============================== */
+/* Animaciones */
+@keyframes slideUpFade {
+    0% { transform: translateY(100px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes dropInFade {
+    0% { transform: translateY(-30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.fab-back-container {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    pointer-events: none;
+    z-index: 100;
+    animation: dropInFade 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.fab-back-btn {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    box-shadow: 0 10px 25px rgba(0, 119, 182, 0.15); /* Ocean blue glow */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &:active {
+        transform: scale(0.9);
+        background: #fff;
+    }
+}
+
+/* Language Toggle Flotante */
+.lang-toggle-floating {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 25px;
+    padding: 5px;
+    display: flex;
+    gap: 5px;
+    box-shadow: 0 10px 25px rgba(0, 119, 182, 0.15); /* Ocean blue glow */
+    z-index: 100;
+    pointer-events: auto;
+    border: 1px solid rgba(255,255,255,0.5);
+    animation: dropInFade 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+    .lang-btn {
+        background: transparent;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.active {
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transform: scale(1.05);
+        }
+
+        .flag {
+            font-size: 1.4rem;
+            margin: 0;
+        }
+    }
+}
+
+.bottom-sheet {
+    position: absolute;
+    bottom: 30px;
+    left: 20px;
+    right: 20px; /* Vuelve a tomar todo el ancho menos margen */
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 15px 40px rgba(0, 119, 182, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    z-index: 90;
+    pointer-events: auto;
+    animation: slideUpFade 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.sheet-handle {
+    display: none;
+}
+
+.sheet-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 120px; /* Reducimos el padding para que el texto respire más */
+}
+
+.sheet-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    letter-spacing: -0.5px;
+}
+
+.sheet-header p {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.instruction-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: transparent;
+    border-left: 3px solid var(--accent);
+    padding: 6px 10px;
+    border-radius: 0;
+    margin-top: 6px;
+    box-shadow: none;
+
+    .info-icon {
+        font-size: 1.2rem;
+        margin-top: -2px;
+        filter: drop-shadow(0 2px 4px rgba(255, 183, 3, 0.4));
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #457b9d;
+        font-weight: 500;
+        line-height: 1.3;
+    }
+}
+
+.polly-container {
+    position: absolute;
+    bottom: -5px; /* Que repose limpiamente en la base */
+    right: -25px; /* Empujada hacia la derecha para liberar espacio al texto */
+    width: 170px; /* Reducción ligera para que no devore la tarjeta */
+    height: 170px;
+    --bubble-offsetX: 85px; /* Aumentamos el offset porque Polly se fue a la derecha */
+    z-index: 110;
+    pointer-events: none;
+    
+    /* Quitamos la sombra de piso para que parezca que sale desde adentro de la tarjeta */
+    &::after {
+        display: none;
+    }
+
+    ::ng-deep .polly-wrapper {
+        pointer-events: auto;
+    }
+}
+
+/* Premium Animated Route - Flowing Neon Dots */
+::ng-deep .animated-route {
+  stroke-dasharray: 0.1, 18; /* Perfect circles with gap */
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(0, 119, 182, 0.8));
+  animation: flowingDots 2s infinite linear, snakeIn 1s ease-out forwards;
+  stroke-width: 10px;
+}
+
+@keyframes flowingDots {
+  from { stroke-dashoffset: 36; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes snakeIn {
+    from { opacity: 0; stroke-dasharray: 0, 1000; }
+    to { opacity: 1; stroke-dasharray: 0.1, 18; }
+}
+
+/* Custom Marker Styling - Premium Pins with Floor Shadow */
+::ng-deep .custom-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible !important;
+
+    .marker-container {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .marker-shadow {
+        position: absolute;
+        bottom: 8px;
+        width: 16px;
+        height: 6px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 50%;
+        filter: blur(3px);
+        transform: scaleX(1);
+        transition: all 0.3s ease;
+    }
+
+    .marker-pin {
+        position: absolute;
+        bottom: 12px;
+        background: white;
+        width: 48px;
+        height: 48px;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        border: 4px solid white;
+        z-index: 2;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        span {
+            transform: rotate(45deg);
+            font-size: 26px;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+        }
+    }
+
+    &.marker-hotel .marker-pin      { background: #0077B6; } 
+    &.marker-restaurant .marker-pin { background: #E07B39; }
+    &.marker-tourism .marker-pin    { background: #1A9E5B; }
+
+    /* Selected Destination State */
+    &.marker-destination {
+        .marker-pin {
+            animation: floatingPin 2s infinite ease-in-out;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+            border-width: 5px;
+            width: 54px;
+            height: 54px;
+        }
+        .marker-shadow {
+            animation: pulsingShadow 2s infinite ease-in-out;
+        }
+    }
+
+    /* Kiosk Special Marker */
+    &.marker-kiosk {
+        .kiosk-pin {
+            background: #FFB703;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 183, 3, 0.7);
+            border: 4px solid white;
+            animation: pulseKiosk 2s infinite ease-in-out;
+            span { font-size: 32px; }
+        }
+    }
+}
+
+@keyframes floatingPin {
+    0%, 100% { transform: rotate(-45deg) translateY(0); }
+    50% { transform: rotate(-45deg) translateY(-15px); }
+}
+
+@keyframes pulsingShadow {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(0.6); opacity: 0.1; }
+}
+
+/* Premium Tooltips - Glassmorphism style */
+::ng-deep .premium-tooltip {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 10px 18px !important;
+    font-weight: 800 !important;
+    font-size: 1rem !important;
+    color: #333 !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+    transform: translateY(-5px);
+    
+    &.tooltip-hotel { color: #0077B6 !important; border-bottom: 3px solid #0077B6 !important; }
+    &.tooltip-restaurant { color: #E07B39 !important; border-bottom: 3px solid #E07B39 !important; }
+    &.tooltip-tourism { color: #1A9E5B !important; border-bottom: 3px solid #1A9E5B !important; }
+
+    &::before {
+        display: none !important; /* Quitamos la flechita para un look mas fluyente */
+    }
+}
+
+/* Kiosk Specific Tooltip */
+::ng-deep .kiosk-tooltip {
+    background: #03045E !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    font-weight: 900 !important;
+    font-size: 1rem !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 1000 !important;
+}
+
+/* Animation for the markers appearing */
+@keyframes markerDrop {
+    0% { transform: translateY(-50px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+::ng-deep .leaflet-marker-icon {
+    animation: markerDrop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+}

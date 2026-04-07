@@ -1,0 +1,24 @@
+# Node/Angular/Ionic
+node_modules/
+.angular/
+.ionic/
+dist/
+www/
+
+# Build artifacts
+*.log
+*.tmp
+*.bak
+
+# Sensitive data
+.env
+
+# Environment
+.vscode/
+.idea/
+*.suo
+*.ntuser
+
+# OS
+Thumbs.db
+.DS_Store

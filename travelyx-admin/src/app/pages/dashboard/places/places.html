@@ -1,0 +1,151 @@
+<div class="places-container">
+  <!-- Mapa Fullscreen -->
+  <div id="map-fullscreen"></div>
+
+  <!-- Panel Lateral Flotante (Lista) -->
+  <aside class="floating-panel list-panel glass-panel">
+    <div class="panel-header">
+      <h4>Directorio de Lugares</h4>
+      <p class="text-xs text-muted">{{ places.length }} lugares cargados</p>
+    </div>
+    
+    <div class="places-list">
+      <div *ngFor="let place of places" 
+           class="place-item" 
+           [class.active]="selectedPlace?.id === place.id"
+           (click)="selectPlace(place)">
+        <div class="status-indicator" [style.backgroundColor]="getCategoryColor(place.category_id)"></div>
+        <div class="place-info">
+          <p class="name">{{ place.name }}</p>
+          <p class="cat">{{ place.category?.name_es || 'Sin Categoría' }}</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Panel de Detalles / Edición Flotante (Derecha) -->
+  <aside class="floating-panel detail-panel glass-panel" *ngIf="selectedPlace">
+    <div class="panel-header">
+      <div class="header-main">
+        <h4>{{ isEditing ? 'Editando Lugar' : 'Detalles del Lugar' }}</h4>
+        <button class="close-btn" (click)="selectedPlace = null">×</button>
+      </div>
+    </div>
+
+    <div class="detail-content scrollable">
+      <!-- Modo Lectura -->
+      <div *ngIf="!isEditing" class="read-mode">
+        <section class="info-section">
+          <h5>📍 Información General</h5>
+          <div class="info-row"><label>Nombre:</label><p>{{ selectedPlace.name }}</p></div>
+          <div class="info-row"><label>Dirección:</label><p>{{ selectedPlace.address || 'Sin dirección' }}</p></div>
+          <div class="info-row"><label>Slogan:</label><p>{{ selectedPlace.slogan || 'Sin slogan' }}</p></div>
+          <div class="info-row"><label>Ubicación:</label><p class="coords">{{ selectedPlace.lat.toFixed(6) }}, {{ selectedPlace.lng.toFixed(6) }}</p></div>
+        </section>
+
+        <section class="info-section">
+          <h5>📞 Contacto</h5>
+          <div class="info-row"><label>Teléfono:</label><p>{{ selectedPlace.phone || 'N/A' }}</p></div>
+          <div class="info-row"><label>Web:</label><p>{{ selectedPlace.website_url || 'N/A' }}</p></div>
+        </section>
+
+        <!-- Específico Hotel -->
+        <section class="info-section" *ngIf="selectedPlace.category_id === 1">
+          <h5>🏨 Características de Hotel</h5>
+          <div class="info-row"><label>Estrellas:</label><p>{{ selectedPlace.stars }} ⭐</p></div>
+          <div class="info-row"><label>Tipo:</label><p>{{ selectedPlace.accommodation_type || 'N/A' }}</p></div>
+        </section>
+
+        <!-- Específico Restaurante -->
+        <section class="info-section" *ngIf="selectedPlace.category_id === 2">
+          <h5>🍽️ Características de Restaurante</h5>
+          <div class="info-row"><label>Platillo Estrella:</label><p>{{ selectedPlace.featured_dish || 'N/A' }}</p></div>
+          <div class="info-row"><label>Rango Precio:</label><p>{{ '$'.repeat(selectedPlace.price_range) }}</p></div>
+          <div class="info-row">
+            <label>Servicios:</label>
+            <span class="tag" *ngIf="selectedPlace.delivery">A domicilio</span>
+            <span class="tag" *ngIf="selectedPlace.pickup">Para llevar</span>
+            <span class="tag" *ngIf="selectedPlace.requires_reservation">Requiere reserva</span>
+          </div>
+        </section>
+
+        <!-- Específico Atracción -->
+        <section class="info-section" *ngIf="selectedPlace.category_id === 3">
+          <h5>🌴 Características de Zona Turística</h5>
+          <div class="info-row"><label>Horarios:</label><p>{{ selectedPlace.opening_hours || 'N/A' }}</p></div>
+          <div class="info-row"><label>Precio Adulto:</label><p>${{ selectedPlace.price_adult }}</p></div>
+        </section>
+
+        <button class="btn btn-primary" (click)="toggleEdit()">Editar Datos</button>
+      </div>
+
+      <!-- Modo Edición -->
+      <form *ngIf="isEditing" (ngSubmit)="saveChanges()" class="edit-form">
+        
+        <section class="form-section">
+          <h6>Información Básica</h6>
+          <div class="form-group">
+            <label>Nombre del Negocio</label>
+            <input type="text" [(ngModel)]="selectedPlace.name" name="name" class="input-dark">
+          </div>
+          <div class="form-group">
+            <label>Dirección física</label>
+            <input type="text" [(ngModel)]="selectedPlace.address" name="address" class="input-dark">
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea [(ngModel)]="selectedPlace.description" name="desc" class="input-dark" rows="3"></textarea>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h6>Contacto y Redes</h6>
+          <div class="form-grid">
+            <div class="form-group"><label>Teléfono</label><input type="text" [(ngModel)]="selectedPlace.phone" name="phone" class="input-dark"></div>
+            <div class="form-group"><label>WhatsApp</label><input type="text" [(ngModel)]="selectedPlace.whatsapp" name="wa" class="input-dark"></div>
+          </div>
+          <div class="form-group"><label>Sitio Web</label><input type="text" [(ngModel)]="selectedPlace.website_url" name="web" class="input-dark"></div>
+        </section>
+
+        <!-- Campos para Hoteles -->
+        <section class="form-section" *ngIf="selectedPlace.category_id === 1">
+          <h6>Configuración Hotel</h6>
+          <div class="form-grid">
+            <div class="form-group"><label>Estrellas (0-5)</label><input type="number" [(ngModel)]="selectedPlace.stars" name="stars" class="input-dark"></div>
+            <div class="form-group"><label>Tipo de Alojamiento</label><input type="text" [(ngModel)]="selectedPlace.accommodation_type" name="acc" class="input-dark"></div>
+          </div>
+        </section>
+
+        <!-- Campos para Restaurantes -->
+        <section class="form-section" *ngIf="selectedPlace.category_id === 2">
+          <h6>Configuración Restaurante</h6>
+          <div class="form-group"><label>Platillo Estrella</label><input type="text" [(ngModel)]="selectedPlace.featured_dish" name="dish" class="input-dark"></div>
+          <div class="form-grid">
+            <div class="form-group"><label>Rango Precio (1-4)</label><input type="number" [(ngModel)]="selectedPlace.price_range" name="pr" class="input-dark"></div>
+            <div class="form-group"><label>Capacidad</label><input type="number" [(ngModel)]="selectedPlace.capacity" name="cap" class="input-dark"></div>
+          </div>
+          <div class="checkbox-group">
+            <label><input type="checkbox" [(ngModel)]="selectedPlace.delivery" name="del"> A domicilio</label>
+            <label><input type="checkbox" [(ngModel)]="selectedPlace.pickup" name="pic"> Para llevar</label>
+            <label><input type="checkbox" [(ngModel)]="selectedPlace.requires_reservation" name="res"> Cita previa</label>
+          </div>
+        </section>
+
+        <!-- Campos para Zonas Turísticas -->
+        <section class="form-section" *ngIf="selectedPlace.category_id === 3">
+          <h6>Configuración Atracción / Zona</h6>
+          <div class="form-group"><label>Horarios</label><textarea [(ngModel)]="selectedPlace.opening_hours" name="hours" class="input-dark" rows="2"></textarea></div>
+          <div class="form-grid">
+            <div class="form-group"><label>Precio Adulto</label><input type="number" [(ngModel)]="selectedPlace.price_adult" name="pa" class="input-dark"></div>
+            <div class="form-group"><label>Precio Niño</label><input type="number" [(ngModel)]="selectedPlace.price_child" name="pc" class="input-dark"></div>
+          </div>
+        </section>
+
+        <div class="edit-actions">
+          <button type="button" class="btn btn-outline" (click)="toggleEdit()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </aside>
+</div>

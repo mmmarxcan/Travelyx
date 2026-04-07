@@ -1,0 +1,48 @@
+<div class="owner-layout">
+
+  <!-- Sidebar -->
+  <aside class="owner-sidebar glass-panel">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🏨</span>
+      <div>
+        <h2>Travelyx</h2>
+        <span class="brand-sub">Panel de Propietario</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/owner/dashboard" routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        <span class="icon">📊</span>
+        <span>Mi Resumen</span>
+      </a>
+      <a routerLink="/owner/places" routerLinkActive="active" class="nav-item">
+        <span class="icon">🏪</span>
+        <span>Mis Negocios</span>
+      </a>
+      <a routerLink="/owner/profile" routerLinkActive="active" class="nav-item">
+        <span class="icon">👤</span>
+        <span>Mi Perfil</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="owner-info">
+        <div class="owner-avatar">{{ ownerName.charAt(0).toUpperCase() }}</div>
+        <div class="owner-details">
+          <p class="owner-name">{{ ownerName }}</p>
+          <p class="owner-email">{{ ownerEmail }}</p>
+        </div>
+      </div>
+      <button class="btn-logout" (click)="logout()">
+        <span>🚪</span> Salir
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="owner-main">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

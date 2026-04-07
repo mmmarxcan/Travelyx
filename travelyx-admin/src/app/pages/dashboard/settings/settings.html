@@ -1,0 +1,80 @@
+<div class="settings-grid">
+  
+  <!-- Bloque: Mi Perfil -->
+  <div class="settings-card glass-panel">
+    <div class="card-header">
+      <span class="icon">👤</span>
+      <h3>Mi Perfil de Administrador</h3>
+    </div>
+    <form class="settings-form" (ngSubmit)="saveProfile()">
+      <div class="form-group">
+        <label>Nombre Completo</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="adminProfile.name" name="name" class="input-dark">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Correo de Acceso</label>
+        <div class="input-wrapper">
+          <input type="email" [(ngModel)]="adminProfile.email" name="email" class="input-dark">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cambiar Contraseña</label>
+        <div class="input-wrapper">
+          <input type="password" [(ngModel)]="adminProfile.password" name="pass" class="input-dark">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-outline btn-block">Actualizar Datos</button>
+    </form>
+  </div>
+
+  <!-- Bloque: Consola del Kiosko -->
+  <div class="settings-card glass-panel">
+    <div class="card-header">
+      <span class="icon">📟</span>
+      <h3>Configuración del Kiosko</h3>
+    </div>
+    <form class="settings-form" (ngSubmit)="saveKioskConfig()">
+      <div class="form-group">
+        <label>Mensaje de Bienvenida (Home)</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="kioskConfig.welcomeMessage" name="welcome" class="input-dark">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nombre de la Localidad</label>
+        <div class="input-wrapper">
+          <input type="text" [(ngModel)]="kioskConfig.cityName" name="city" class="input-dark">
+        </div>
+      </div>
+      
+      <div class="toggle-group">
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <p>Modo Mantenimiento</p>
+            <span class="text-xs text-muted">Desactiva el Kiosko temporalmente.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="kioskConfig.maintenanceMode" name="maint">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <p>Mostrar Mascota (Polly)</p>
+            <span class="text-xs text-muted">Habilitar asistencia visual interactiva.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="kioskConfig.showMascot" name="polly">
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Guardar Cambios Globales</button>
+    </form>
+  </div>
+
+</div>

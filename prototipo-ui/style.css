@@ -1,0 +1,286 @@
+:root {
+    --primary: #0077B6;    /* Ocean Blue */
+    --secondary: #20B2AA;  /* Sea Green */
+    --accent: #FFB703;     /* Sun Yellow */
+    --white: #FFFFFF;
+    --text-dark: #333333;
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --bubble-bg: #FFFFFF;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-dark);
+    overflow: hidden; /* Typical for kiosks to avoid scrolling whole page */
+    user-select: none; /* Kiosk style */
+}
+
+/* Background */
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('assets/bg.png');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    filter: saturate(1.2) contrast(0.9) brightness(0.9);
+}
+
+/* Header */
+.kiosk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border-bottom: 2px solid var(--glass-border);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    margin-bottom: -5px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+/* Language Toggle */
+.lang-toggle {
+    display: flex;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px;
+    border-radius: 30px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.lang-btn {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.lang-btn.active {
+    background: var(--white);
+    color: var(--primary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Main Content Area */
+.kiosk-main {
+    height: calc(100vh - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* El area que agrupa a Polly y sus botones */
+.interactive-center {
+    position: relative;
+    width: min(80vw, 600px);
+    height: min(80vw, 600px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Polly Mascot - Focused and Centralized */
+.polly-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none; 
+}
+
+.polly-mascot {
+    width: clamp(200px, 45vw, 380px); /* Tamaño mayor (Protagonismo) */
+    height: auto;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3));
+    transition: transform 0.2s ease, filter 0.2s ease;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.polly-mascot:active {
+    transform: scale(0.95);
+}
+
+/* Action Cards - Botones más reducidos */
+.action-card {
+    position: absolute;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 15px 10px;
+    width: clamp(120px, 18vw, 170px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    z-index: 20;
+}
+
+.action-card:hover, .action-card:active {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+    border-color: var(--secondary);
+}
+
+.card-icon {
+    font-size: clamp(2rem, 3.5vw, 3rem);
+}
+
+.action-card h2 {
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    color: var(--primary);
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Alineación con tentáculos radiales */
+.pos-ml { top: 25%; left: -20%; }
+.pos-mr { top: 25%; right: -20%; }
+.pos-bl { bottom: 0%; left: -5%; }
+.pos-br { bottom: 0%; right: -5%; }
+
+@media (max-width: 900px) {
+    .pos-ml { top: 15%; left: -10%; }
+    .pos-mr { top: 15%; right: -10%; }
+    .pos-bl { bottom: 10%; left: 0%; }
+    .pos-br { bottom: 10%; right: 0%; }
+}
+
+@media (max-width: 600px) {
+    .kiosk-main { padding: 10px; }
+    .interactive-center { margin-top: 50px; width: 90vw; height: 90vw; }
+    .pos-ml { top: -20%; left: 5%; }
+    .pos-mr { top: -20%; right: 5%; }
+    .pos-bl { bottom: 5%; left: 5%; }
+    .pos-br { bottom: 5%; right: 5%; }
+}
+
+/* Speech Bubble Centrado */
+.speech-bubble {
+    position: absolute;
+    bottom: 90%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--bubble-bg);
+    border: 3px solid var(--accent);
+    border-radius: 20px;
+    padding: 15px 25px;
+    width: max-content;
+    max-width: 320px;
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    font-weight: 600;
+    color: var(--primary);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    margin-bottom: 20px; 
+    opacity: 1;
+    transform-origin: bottom center;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+    text-align: center;
+}
+
+.speech-bubble.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.5);
+    pointer-events: none;
+}
+
+.bubble-arrow {
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 20px;
+    height: 20px;
+    background: var(--bubble-bg);
+    border-bottom: 3px solid var(--accent);
+    border-right: 3px solid var(--accent);
+}
+
+/* Typewriter cursor effect */
+.cursor {
+    display: inline-block;
+    width: 3px;
+    height: 1.2em;
+    background-color: var(--primary);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Idle Animation (Breathing/Floating) */
+.idle-anim {
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-15px) scale(1.02); }
+    100% { transform: translateY(0px) scale(1); }
+}
+
+/* Bounce animation when talking */
+.talk-anim {
+    animation: bounce 0.5s cubic-bezier(0.28, 0.84, 0.42, 1) alternate 2;
+}
+
+@keyframes bounce {
+    0% { transform: translateY(0) scaleY(1); }
+    100% { transform: translateY(-30px) scaleY(1.05); }
+}
+
+/* Success jump animation */
+.success-anim {
+    animation: jump 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes jump {
+    0% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.1) translateY(-60px); }
+    100% { transform: scale(1) translateY(0); }
+}

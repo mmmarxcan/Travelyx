@@ -1,0 +1,93 @@
+<app-header></app-header>
+<ion-content [fullscreen]="true" class="transparent-content">
+  <div class="background-container"></div>
+
+  <div class="filters-layout">
+
+    <!-- ── Filter Panel ──────────────────────────────────────── -->
+    <div class="filters-panel theme-tourism">
+
+      <div class="panel-header">
+        <button class="back-btn" (click)="goBack()">
+          <span class="btn-arrow">←</span>
+          <span class="btn-text">{{ langService.currentLang === 'es' ? 'Atrás' : 'Back' }}</span>
+        </button>
+        <div class="panel-title">
+          <span class="panel-icon">🌴</span>
+          <h1>{{ langService.currentLang === 'es' ? 'Zonas Turísticas' : 'Tourist Attractions' }}</h1>
+        </div>
+      </div>
+
+      <div class="filters-scroll">
+
+        <!-- ── Section 1: Type ────────────────────────────────────── -->
+        <section class="filter-section">
+          <h3 class="section-title">
+            <span class="section-num">1</span>
+            {{ langService.currentLang === 'es' ? '¿Qué te gustaría visitar?' : 'What would you like to visit?' }}
+          </h3>
+          <div class="option-grid cols-3">
+            <button
+              *ngFor="let t of typeOptions"
+              class="option-chip"
+              [class.selected]="selectedType === t.id"
+              (click)="selectType(t.id)">
+              <span class="chip-icon">{{ t.icon }}</span>
+              <span class="chip-label">{{ t.label[langService.currentLang] }}</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Section 2: Price ───────────────────────────────────── -->
+        <section class="filter-section">
+          <h3 class="section-title">
+            <span class="section-num">2</span>
+            {{ langService.currentLang === 'es' ? '¿Cuánto quieres invertir?' : 'How much do you want to spend?' }}
+          </h3>
+          <div class="option-grid cols-4">
+            <button
+              *ngFor="let p of priceOptions"
+              class="option-chip"
+              [class.selected]="selectedPrice === p.id"
+              (click)="selectPrice(p.id)">
+              <span class="chip-icon">{{ p.icon }}</span>
+              <span class="chip-label">{{ p.label[langService.currentLang] }}</span>
+              <span class="chip-detail">{{ p.detail[langService.currentLang] }}</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Section 3: Duration ────────────────────────────────── -->
+        <section class="filter-section">
+          <h3 class="section-title">
+            <span class="section-num">3</span>
+            {{ langService.currentLang === 'es' ? '¿Cuánto tiempo tienes?' : 'How much time do you have?' }}
+          </h3>
+          <div class="option-grid cols-4">
+            <button
+              *ngFor="let d of durationOptions"
+              class="option-chip"
+              [class.selected]="selectedDuration === d.id"
+              (click)="selectDuration(d.id)">
+              <span class="chip-icon">{{ d.icon }}</span>
+              <span class="chip-label">{{ d.label[langService.currentLang] }}</span>
+              <span class="chip-detail">{{ d.detail[langService.currentLang] }}</span>
+            </button>
+          </div>
+        </section>
+
+      </div><!-- /filters-scroll -->
+
+      <!-- ── CTA ───────────────────────────────────────────────────── -->
+      <div class="cta-bar">
+        <p class="cta-hint" *ngIf="!canContinue">
+          {{ langService.currentLang === 'es' ? 'Selecciona al menos una preferencia' : 'Select at least one preference' }}
+        </p>
+        <button class="cta-btn" [disabled]="!canContinue" (click)="findAttractions()">
+          <span>{{ langService.currentLang === 'es' ? '🍱 Ver recomendaciones' : '🍱 Show recommendations' }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

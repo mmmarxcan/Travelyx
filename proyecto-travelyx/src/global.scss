@@ -1,0 +1,49 @@
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+@import 'leaflet/dist/leaflet.css';
+
+:root {
+    --primary: #0077B6;    /* Ocean Blue */
+    --secondary: #20B2AA;  /* Sea Green */
+    --accent: #FFB703;     /* Sun Yellow */
+    --white: #FFFFFF;
+    --text-dark: #333333;
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --bubble-bg: #FFFFFF;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-dark);
+    --ion-font-family: 'Outfit', sans-serif;
+    user-select: none;
+}
+
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('assets/bg.png');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    filter: saturate(1.2) contrast(0.9) brightness(0.9);
+}
+
+.transparent-content {
+  --background: transparent;
+}

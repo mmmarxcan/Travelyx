@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAVELYX Kiosk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Fondo Animado / Semi-fijo -->
+    <div class="background-container"></div>
+    
+    <!-- Navbar / Header -->
+    <header class="kiosk-header">
+        <div class="logo-container">
+            <h1>TRAVELYX</h1>
+            <span class="subtitle">Progreso, Yucatán</span>
+        </div>
+        <div class="lang-toggle">
+            <button class="lang-btn active" id="btn-es" aria-label="Español">
+                🇲🇽 ES
+            </button>
+            <button class="lang-btn" id="btn-en" aria-label="English">
+                🇺🇸 EN
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal: Diseño Radial con Polly al centro -->
+    <main class="kiosk-main">
+        <div class="interactive-center">
+            
+            <!-- Mascota Central (Polly) -->
+            <div id="polly-container" class="polly-container">
+                <div id="polly-bubble" class="speech-bubble hidden">
+                    <p id="polly-text"></p>
+                    <div class="bubble-arrow"></div>
+                </div>
+                <img id="polly-img" src="assets/polly/PULPITO 2.png" alt="Mascota Polly" class="polly-mascot idle-anim">
+            </div>
+
+            <!-- Botones distribuidos como tentáculos -->
+            <button class="action-card pos-ml" id="btn-hotels">
+                <span class="card-icon">🏨</span>
+                <h2>Hoteles</h2>
+            </button>
+            <button class="action-card pos-mr" id="btn-restaurants">
+                <span class="card-icon">🍽️</span>
+                <h2>Restaurantes</h2>
+            </button>
+            <button class="action-card pos-bl" id="btn-tourism">
+                <span class="card-icon">🌴</span>
+                <h2>Zonas Turísticas</h2>
+            </button>
+            <button class="action-card pos-br" id="btn-map">
+                <span class="card-icon">🗺️</span>
+                <h2>Mapa interactivo</h2>
+            </button>
+            
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

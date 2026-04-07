@@ -1,0 +1,145 @@
+<div class="users-container glass-panel">
+  <div class="section-header">
+    <div class="header-text">
+      <h3>Gestión de Usuarios (Dueños)</h3>
+      <p class="text-muted">Control de acceso y perfiles de propietarios registrados.</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">+ Nuevo Dueño</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Nombre / Email</th>
+          <th>Teléfono</th>
+          <th>Negocios</th>
+          <th>Registro</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users; trackBy: trackById">
+          <td>
+            <div class="user-cell">
+              <div class="avatar-mini">{{ (user.full_name || user.email).charAt(0).toUpperCase() }}</div>
+              <div class="info">
+                <div class="name-status">
+                  <p class="user-name">{{ user.full_name || 'Sin nombre' }}</p>
+                  <span *ngIf="user.must_change_password" class="badge-pending">Pendiente</span>
+                </div>
+                <p class="email">{{ user.email }}</p>
+              </div>
+            </div>
+          </td>
+          <td>{{ user.phone || '-' }}</td>
+          <td class="text-center">{{ user._count?.places || 0 }}</td>
+          <td>{{ user.created_at | date:'dd/MM/yy' }}</td>
+          <td>
+            <button class="status-toggle"
+                    [class.active]="user.is_active"
+                    (click)="toggleStatus(user)"
+                    [title]="user.is_active ? 'Desactivar cuenta' : 'Activar cuenta'">
+              <div class="toggle-dot"></div>
+              <span>{{ user.is_active ? 'Activo' : 'Inactivo' }}</span>
+            </button>
+          </td>
+          <td class="text-center">
+            <div class="actions">
+              <button class="btn-icon" (click)="resetPassword(user)" title="Resetear contraseña">
+                <span>🔑</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="6" class="text-center" style="padding: 2rem; color: var(--text-muted);">
+            No hay dueños registrados aún.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal para Crear Usuario -->
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-content glass-panel">
+    <div class="modal-header">
+      <h3>Registrar Nuevo Dueño</h3>
+      <button class="close-btn" (click)="closeCreateModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Formulario -->
+      <div *ngIf="!currentTempPassword">
+        <p class="text-sm text-muted mb-4">Completa los datos del propietario para generar su cuenta de acceso.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre Completo</label>
+            <input
+              type="text"
+              class="input-field"
+              [(ngModel)]="newUserName"
+              placeholder="Ej: Juan Pérez"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Correo Electrónico</label>
+            <input
+              type="email"
+              class="input-field"
+              [(ngModel)]="newUserEmail"
+              placeholder="juan@ejemplo.com"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono / WhatsApp</label>
+            <input
+              type="text"
+              class="input-field"
+              [(ngModel)]="newUserPhone"
+              placeholder="+52 999 000 0000"
+              autocomplete="off"
+            >
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-outline" (click)="closeCreateModal()">Cancelar</button>
+          <button
+            class="btn btn-primary"
+            (click)="createUser()"
+            [disabled]="isCreating || !newUserEmail || !newUserName">
+            {{ isCreating ? 'Creando cuenta...' : 'Crear Cuenta' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Pantalla de Éxito con Contraseña -->
+      <div *ngIf="currentTempPassword" class="success-display">
+        <div class="success-icon">✅</div>
+        <h4>¡Cuenta Creada!</h4>
+        <p class="text-sm">Entrega esta contraseña temporal al dueño. No volverá a mostrarse.</p>
+
+        <div class="password-box">
+          <code>{{ currentTempPassword }}</code>
+        </div>
+
+        <p class="text-xs text-warning mt-2">El usuario deberá cambiarla en su primer inicio de sesión.</p>
+
+        <button class="btn btn-primary btn-block mt-4" (click)="closeCreateModal()">
+          Cerrar y Continuar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

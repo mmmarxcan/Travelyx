@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPERADMIN
+  OWNER
+}
+
+enum PlaceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                    Int      @id @default(autoincrement())
+  email                 String   @unique
+  full_name             String?
+  phone                 String?
+  password_hash         String
+  role                  Role     @default(OWNER)
+  is_active             Boolean  @default(true)
+  must_change_password  Boolean  @default(true)
+  created_at            DateTime @default(now())
+  places                Place[]
+}
+
+model Category {
+  id        Int               @id @default(autoincrement())
+  slug      String            @unique // hotel, restaurant, tourist_spot
+  places    Place[]
+  amenities CategoryAmenity[]
+}
+
+model Place {
+  id                 Int      @id @default(autoincrement())
+  owner_id           Int
+  category_id        Int
+  name               String
+  lat                Float
+  lng                Float
+  phone              String?
+  whatsapp           String?
+  website_url        String?
+  social_url         String?
+  icon               String? // e.g. MDI icon string
+  is_active          Boolean  @default(true)
+  status             PlaceStatus @default(PENDING)
+  address            String?  @db.Text
+
+  // Campos extendidos Compartidos (Hotel/Atracción/Restaurante)
+  stars              Int      @default(0)
+  accommodation_type String?  // Hotel: Boutique... | Atracción: Naturaleza... | Restaurante: Cocina
+  house_rules        String?  @db.Text
+  cancellation_policy String? @db.Text
+  slogan             String?
+  opening_hours      String?  @db.Text
+  best_time          String?  
+  price_adult        Float    @default(0)
+  price_child        Float    @default(0)
+  price_local        Float    @default(0)
+  estimated_duration String?
+
+  // Campos específicos para Restaurantes
+  price_range        Int      @default(1) // 1 to 4 ($ to $$$$)
+  featured_dish      String?
+  menu_url           String?
+  capacity           Int      @default(0)
+  stay_time          String?  // Ej: "1.5 horas"
+  delivery           Boolean  @default(false)
+  pickup             Boolean  @default(false)
+  requires_reservation Boolean @default(false)
+  cuisine             String?  // Ej: "seafood", "italian", "mexican"
+
+  owner        User               @relation(fields: [owner_id], references: [id])
+  category     Category           @relation(fields: [category_id], references: [id])
+  translations PlaceTranslation[]
+  images       PlaceImage[]
+  amenities    PlaceAmenity[]
+
+  @@map("places")
+}
+
+model PlaceImage {
+  id         Int    @id @default(autoincrement())
+  place_id   Int
+  image_url  String
+  sort_order Int    @default(0)
+
+  place Place @relation(fields: [place_id], references: [id])
+
+  @@map("place_images")
+}
+
+model PlaceTranslation {
+  id            Int    @id @default(autoincrement())
+  place_id      Int
+  language_code String // 'es' or 'en'
+  description   String @db.Text
+
+  place Place @relation(fields: [place_id], references: [id])
+
+  @@unique([place_id, language_code])
+  @@map("place_translations")
+}
+
+model Amenity {
+  id         Int               @id @default(autoincrement())
+  slug       String            @unique // e.g. pool, pet-friendly
+  group      String?           // Connectivity, Wellness, Dining, Logistics...
+  name_es    String
+  name_en    String
+  places     PlaceAmenity[]
+  categories CategoryAmenity[]
+
+  @@map("amenities")
+}
+
+model CategoryAmenity {
+  category_id Int
+  amenity_id  Int
+
+  category Category @relation(fields: [category_id], references: [id])
+  amenity  Amenity  @relation(fields: [amenity_id], references: [id])
+
+  @@id([category_id, amenity_id])
+  @@map("category_amenities")
+}
+
+model PlaceAmenity {
+  place_id   Int
+  amenity_id Int
+
+  place   Place   @relation(fields: [place_id], references: [id])
+  amenity Amenity @relation(fields: [amenity_id], references: [id])
+
+  @@id([place_id, amenity_id])
+  @@map("place_amenities")
+}

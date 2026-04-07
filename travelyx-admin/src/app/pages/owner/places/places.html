@@ -1,0 +1,336 @@
+<div class="owner-places">
+
+  <!-- Header -->
+  <div class="page-header glass-panel">
+    <div>
+      <h2>Mis Negocios</h2>
+      <p class="text-muted">Gestiona tus locales que aparecen en el kiosko Travelyx.</p>
+    </div>
+    <button class="btn btn-primary shadow-lg" (click)="openModal()">+ Registrar Negocio</button>
+  </div>
+
+  <!-- Table -->
+  <div class="places-table-wrap glass-panel" *ngIf="places.length > 0">
+    <table class="places-table">
+      <thead>
+        <tr>
+          <th>Negocio</th>
+          <th>Categoría</th>
+          <th>Teléfono</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of places">
+          <td>
+            <div class="place-name-cell">
+              <div class="place-avatar">{{ p.name.charAt(0).toUpperCase() }}</div>
+              <span>{{ p.name }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="cat-badge">{{ getCategoryLabel(p.category_id) }}</span>
+          </td>
+          <td>{{ p.phone || '-' }}</td>
+          <td>
+            <span class="status-pill {{ (p.status || 'PENDING').toLowerCase() }}">
+              {{ (p.status === 'APPROVED') ? '✅ Aprobado' : (p.status === 'REJECTED' ? '❌ Rechazado' : '⏳ Pendiente') }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state glass-panel" *ngIf="places.length === 0">
+    <div class="empty-icon">🏖️</div>
+    <h3>¿Aún no tienes negocios?</h3>
+    <button class="btn btn-primary" (click)="openModal()">Registrar mi primer local</button>
+  </div>
+
+</div>
+
+<!-- ── Modal: Registro Multi-Paso ──────────────────────── -->
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-box glass-panel detailed-modal" [class.selection-mode]="showSelectionStep">
+
+    <!-- Éxito -->
+    <div *ngIf="successMessage" class="success-state">
+      <div class="success-icon">✨</div>
+      <h3>¡Registro Exitoso!</h3>
+      <p>{{ successMessage }}</p>
+      <button class="btn btn-primary" (click)="closeModal()">Finalizar</button>
+    </div>
+
+    <div *ngIf="!successMessage" class="modal-container-wrap">
+      
+      <!-- PASO 0: SELECCIÓN DE CATEGORÍA -->
+      <div class="selection-step" *ngIf="showSelectionStep">
+        <div class="selection-header">
+          <h2>¿Qué tipo de negocio deseas registrar?</h2>
+          <p>Elige una categoría para ofrecerte las mejores opciones de edición.</p>
+          <button class="close-btn top-right" (click)="closeModal()">×</button>
+        </div>
+        <div class="category-cards">
+          <div class="cat-card" *ngFor="let cat of categories" (click)="selectCategory(cat.id)">
+            <div class="cat-icon-wrap">{{ cat.icon }}</div>
+            <h3>{{ cat.label }}</h3>
+            <p>{{ cat.desc }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 1: FORMULARIO DETALLADO -->
+      <div class="form-step-container" *ngIf="!showSelectionStep">
+        
+        <aside class="modal-sidebar">
+          <div class="logo-small">✨ Travelyx</div>
+          <div class="selected-cat-badge">
+            {{ getCategoryLabel(form.category_id) }}
+          </div>
+
+          <!-- NAVEGACIÓN BASADA EN CATEGORÍA -->
+          <nav class="tab-nav">
+            <button [class.active]="activeTab === 'identificacion'" (click)="setTab('identificacion')">🏷️ Identidad</button>
+            <button [class.active]="activeTab === 'operacion'" (click)="setTab('operacion')">⚙️ Operación</button>
+            <button [class.active]="activeTab === 'facilidades'" (click)="setTab('facilidades')">🛠️ Vibe & Servicios</button>
+            <button [class.active]="activeTab === 'visual'" (click)="setTab('visual')">🖼️ Multimedia</button>
+            <button [class.active]="activeTab === 'ubicacion'" (click)="setTab('ubicacion')">📍 Ubicación</button>
+          </nav>
+
+          <div class="sidebar-footer">
+            <button class="btn btn-block btn-primary" (click)="savePlace()" [disabled]="isSaving || !form.name">
+              {{ isSaving ? 'Guardando...' : 'Guardar y Enviar' }}
+            </button>
+            <button class="btn btn-block btn-outline" (click)="showSelectionStep = true">Atrás</button>
+          </div>
+        </aside>
+
+        <main class="modal-content-area">
+          <div class="modal-body-header">
+            <h3>{{ activeTab | uppercase }}</h3>
+            <button class="close-btn" (click)="closeModal()">×</button>
+          </div>
+
+          <div class="tab-pane-container">
+            
+            <!-- ── TAB: IDENTIDAD ──────────────────────── -->
+            <div class="tab-pane" *ngIf="activeTab === 'identificacion'">
+              <div class="form-group">
+                <label>Nombre Comercial *</label>
+                <input type="text" class="input-field" [(ngModel)]="form.name" placeholder="Ej: Mariscos 'La Langosta Feliz'">
+              </div>
+
+              <!-- Restaurante Específico -->
+              <ng-container *ngIf="form.category_id === 2">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Tipo de Cocina</label>
+                    <select class="input-field" [(ngModel)]="form.accommodation_type">
+                      <option *ngFor="let c of cuisineTypes" [value]="c">{{ c }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Rango de Precios</label>
+                    <div class="price-range-selector">
+                      <span *ngFor="let n of [1,2,3,4]" (click)="form.price_range = n" [class.active]="form.price_range >= n">$</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-top: 1rem">
+                  <label>Especialidad de la Casa (Plato Estrella)</label>
+                  <input type="text" class="input-field" [(ngModel)]="form.featured_dish" placeholder="Ej: Tacos de Camarón al Pastor">
+                </div>
+              </ng-container>
+
+              <!-- Lógica de Hotel (Estrellas & Políticas) -->
+              <ng-container *ngIf="form.category_id === 1">
+                <div class="form-group">
+                  <label>Tipo de Alojamiento</label>
+                  <select class="input-field" [(ngModel)]="form.accommodation_type">
+                    <option *ngFor="let t of accTypes" [value]="t">{{ t }}</option>
+                  </select>
+                </div>
+                
+                <div class="form-group" style="margin-top: 1.5rem">
+                  <label>Estrellas / Calificación</label>
+                  <div class="star-picker">
+                    <span *ngFor="let s of [1,2,3,4,5]" 
+                          (click)="form.stars = s"
+                          [class.active]="form.stars >= s">★</span>
+                  </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 2rem">
+                  <div class="form-group">
+                    <label>Reglamento Interno</label>
+                    <textarea class="input-field" [(ngModel)]="form.house_rules" rows="4" placeholder="Ej: No se permite fumar en habitaciones..."></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Política de Cancelación</label>
+                    <textarea class="input-field" [(ngModel)]="form.cancellation_policy" rows="4" placeholder="Ej: Reembolso completo 24h antes..."></textarea>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Atracción Específico -->
+              <ng-container *ngIf="form.category_id === 3">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Tipo de Atractivo</label>
+                    <select class="input-field" [(ngModel)]="form.accommodation_type">
+                      <option *ngFor="let t of attractionTypes" [value]="t">{{ t }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Slogan o Frase Ganadora</label>
+                    <input type="text" class="input-field" [(ngModel)]="form.slogan">
+                  </div>
+                </div>
+              </ng-container>
+
+              <div class="form-group" style="margin-top: 1.5rem">
+                <label>Descripción General / Historia</label>
+                <textarea class="input-field" [(ngModel)]="form.description_es" rows="6" 
+                  placeholder="Cuéntanos qué hace especial a tu lugar..."></textarea>
+              </div>
+            </div>
+
+            <!-- ── TAB: OPERACIÓN ──────────────────────── -->
+            <div class="tab-pane" *ngIf="activeTab === 'operacion'">
+              
+              <!-- Horarios Compartidos -->
+              <div class="form-group">
+                <label>Horarios por Día (Selecciona apertura y cierre)</label>
+                <div class="hours-grid glass-panel-inner">
+                  <div class="hour-row" *ngFor="let day of daysOfWeek">
+                    <span class="day-name">{{ day.name }}</span>
+                    <div class="hour-controls" [class.disabled]="day.closed">
+                      <input type="time" [(ngModel)]="day.open" [disabled]="day.closed">
+                      <span>a</span>
+                      <input type="time" [(ngModel)]="day.close" [disabled]="day.closed">
+                    </div>
+                    <label class="closed-toggle">
+                      <input type="checkbox" [(ngModel)]="day.closed"> <span>Cerrado</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Restaurante Operación -->
+              <div class="form-row" *ngIf="form.category_id === 2" style="margin-top: 1.5rem">
+                <div class="form-group">
+                  <label>Capacidad (Comensales)</label>
+                  <input type="number" class="input-field" [(ngModel)]="form.capacity" placeholder="0">
+                </div>
+                <div class="form-group">
+                  <label>Tiempo Promedio de Estancia</label>
+                  <input type="text" class="input-field" [(ngModel)]="form.stay_time" placeholder="Ej: 45 min o 1.5 horas">
+                </div>
+              </div>
+
+              <!-- Logística Restaurante -->
+              <div class="logistics-section" *ngIf="form.category_id === 2" style="margin-top: 1.5rem">
+                <label>Servicios de Entrega</label>
+                <div class="toggle-grid">
+                  <label class="custom-toggle">
+                    <input type="checkbox" [(ngModel)]="form.delivery">
+                    <span class="toggle-label">Servicio a Domicilio</span>
+                  </label>
+                  <label class="custom-toggle">
+                    <input type="checkbox" [(ngModel)]="form.pickup">
+                    <span class="toggle-label">Pick-up (Recoger en local)</span>
+                  </label>
+                  <label class="custom-toggle">
+                    <input type="checkbox" [(ngModel)]="form.requires_reservation">
+                    <span class="toggle-label">Acepta Reservas</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Atracción Operación -->
+              <div class="prices-section" *ngIf="form.category_id === 3" style="margin-top: 1.5rem">
+                <h4>Precio de Entrada ($ MXN)</h4>
+                <div class="price-grid">
+                  <div class="form-group">
+                    <label>Adultos</label>
+                    <div class="price-input-wrap"><span>$</span><input type="number" [(ngModel)]="form.price_adult"></div>
+                  </div>
+                  <div class="form-group">
+                    <label>Niños</label>
+                    <div class="price-input-wrap"><span>$</span><input type="number" [(ngModel)]="form.price_child"></div>
+                  </div>
+                  <div class="form-group">
+                    <label>Locales</label>
+                    <div class="price-input-wrap"><span>$</span><input type="number" [(ngModel)]="form.price_local"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── TAB: VIBE & SERVICIOS (AMENITIES) ───────── -->
+            <div class="tab-pane" *ngIf="activeTab === 'facilidades'">
+              <div class="amenity-group" *ngFor="let group of groupedAmenities">
+                <h4 class="group-title">{{ group.group }}</h4>
+                <div class="amenity-list">
+                  <div class="amenity-check" 
+                       *ngFor="let a of group.items"
+                       [class.selected]="isAmenitySelected(a.id)"
+                       (click)="toggleAmenity(a.id)">
+                    <span class="check-icon">{{ isAmenitySelected(a.id) ? '✓' : '' }}</span>
+                    <label>{{ a.name_es }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── TAB: MULTIMEDIA ──────────────────────── -->
+            <div class="tab-pane" *ngIf="activeTab === 'visual'">
+               <div class="form-group" *ngIf="form.category_id === 2">
+                  <label>Enlace al Menú Digital (PDF o URL)</label>
+                  <input type="text" class="input-field" [(ngModel)]="form.menu_url" placeholder="https://miweb.com/menu.pdf">
+               </div>
+
+               <div class="form-group gallery-section" style="margin-top: 1.5rem">
+                <label>Foto de Portada y Galería (Platos/Instalaciones)</label>
+                <div class="gallery-grid">
+                  <div class="gallery-item add-image">
+                    <input type="file" multiple (change)="onFileSelected($event)" id="gallery-input" accept="image/*">
+                    <label for="gallery-input"><span>+</span></label>
+                  </div>
+                  <div class="gallery-item-preview" *ngFor="let img of galleryPreviews; let i = index">
+                    <img [src]="img">
+                    <button class="remove-img" (click)="removeImage(i)">×</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── TAB: UBICACIÓN & CONTACTO ──────────────── -->
+            <div class="tab-pane" *ngIf="activeTab === 'ubicacion'">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Teléfono / WhatsApp</label>
+                  <input type="text" class="input-field" [(ngModel)]="form.phone" placeholder="Ej: +52 ...">
+                </div>
+                <div class="form-group">
+                  <label>Instagram o Facebook</label>
+                  <input type="text" class="input-field" [(ngModel)]="form.social_url" placeholder="@mi_local">
+                </div>
+              </div>
+              
+              <div class="form-group" style="margin-top: 1rem">
+                <label>Dirección Exacta (Calle, número y referencias)</label>
+                <input type="text" class="input-field" [(ngModel)]="form.address" placeholder="Ej: Calle 80 x 21 y 23, Progreso">
+              </div>
+
+              <div id="owner-map" class="registration-map-full" style="margin-top: 1.5rem"></div>
+            </div>
+
+          </div>
+        </main>
+      </div>
+
+    </div>
+  </div>
+</div>

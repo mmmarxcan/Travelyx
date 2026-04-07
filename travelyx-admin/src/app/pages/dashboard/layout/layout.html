@@ -1,0 +1,59 @@
+<div class="dashboard-layout">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar glass-panel">
+    <div class="sidebar-header">
+      <span class="logo-icon">✨</span>
+      <h2>Travelyx</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        <span class="icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/dashboard/places" routerLinkActive="active" class="nav-item">
+        <span class="icon">📍</span>
+        <span>Lugares</span>
+      </a>
+      <a routerLink="/dashboard/users" routerLinkActive="active" class="nav-item">
+        <span class="icon">👥</span>
+        <span>Usuarios</span>
+      </a>
+      <a routerLink="/dashboard/settings" routerLinkActive="active" class="nav-item">
+        <span class="icon">⚙️</span>
+        <span>Ajustes</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-outline" (click)="logout()">
+        <span class="icon">🚪</span>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content wrapper -->
+  <main class="main-content">
+    
+    <!-- Top Header Navigation (Optional, or just greetings) -->
+    <header class="top-header glass-panel">
+      <div class="greeting">
+        <h3>Hola, Super Administrador</h3>
+        <p class="text-muted">Aquí está el resumen de tu portal hoy</p>
+      </div>
+
+      <div class="header-actions">
+        <!-- user avatar mock -->
+        <div class="avatar">SA</div>
+      </div>
+    </header>
+
+    <!-- Where children pages render -->
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+
+  </main>
+</div>

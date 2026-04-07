@@ -1,0 +1,46 @@
+<ion-content [fullscreen]="true" class="map-content">
+  <!-- Container for the map -->
+  <div id="map" class="map-container"></div>
+
+  <!-- P3: Back Button Flotante -->
+  <div class="fab-back-container">
+    <button class="fab-back-btn" (click)="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="28" height="28">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M328 112L184 256l144 144"/>
+        </svg>
+    </button>
+  </div>
+
+  <!-- Language Toggle Flotante -->
+  <div class="lang-toggle-floating">
+    <button class="lang-btn" [class.active]="langService.currentLang === 'es'" (click)="langService.setLanguage('es')">
+        <span class="flag">🇲🇽</span>
+    </button>
+    <button class="lang-btn" [class.active]="langService.currentLang === 'en'" (click)="langService.setLanguage('en')">
+        <span class="flag">🇺🇸</span>
+    </button>
+  </div>
+
+  <!-- P3: Bottom Card (Ficha Inferior Flotante) -->
+  <div class="bottom-sheet floating-card">
+      
+      <!-- Polly integrada asomándose desde la tarjeta -->
+      <div class="polly-container">
+        <app-polly></app-polly>
+      </div>
+
+      <div class="sheet-handle"></div>
+      <div class="sheet-content">
+          <div class="sheet-header">
+              <h2>{{ langService.translate('progreso') }}</h2>
+              <p>{{ langService.translate('touristZone') }}</p>
+          </div>
+          <div class="sheet-body">
+              <div class="instruction-box">
+                  <span class="info-icon">💡</span>
+                  <p>{{ langService.translate('mapInstruction') }}</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</ion-content>

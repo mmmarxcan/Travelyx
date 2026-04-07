@@ -1,0 +1,28 @@
+<app-header></app-header>
+<ion-content [fullscreen]="true" class="transparent-content">
+  <div class="background-container"></div>
+  <main class="kiosk-main">
+      <div class="interactive-center">
+          
+          <app-polly></app-polly>
+
+          <button class="action-card pos-ml" (click)="actionClick('hotels')">
+              <span class="card-icon">🏨</span>
+              <h2>{{ langService.translate('btnHotels') }}</h2>
+          </button>
+          <button class="action-card pos-mr" (click)="actionClick('restaurants')">
+              <span class="card-icon">🍽️</span>
+              <h2>{{ langService.translate('btnRestaurants') }}</h2>
+          </button>
+          <button class="action-card pos-bl" (click)="actionClick('tourism')">
+              <span class="card-icon">🌴</span>
+              <h2>{{ langService.translate('btnTourism') }}</h2>
+          </button>
+          <button class="action-card pos-br" (click)="actionClick('map')">
+              <span class="card-icon">🗺️</span>
+              <h2>{{ langService.translate('btnMap') }}</h2>
+          </button>
+          
+      </div>
+  </main>
+</ion-content>

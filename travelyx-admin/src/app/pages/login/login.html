@@ -1,0 +1,80 @@
+<div class="login-container">
+  <div class="gradient-sphere sphere-1"></div>
+  <div class="gradient-sphere sphere-2"></div>
+
+  <div class="login-wrapper">
+
+    <!-- ── Panel Login ── -->
+    <div class="glass-panel login-card" *ngIf="!mustChangePassword">
+      <div class="login-header">
+        <div class="logo">
+          <span class="logo-icon">✨</span>
+          <h2>Travelyx</h2>
+        </div>
+        <p class="subtitle">Ingresa tus credenciales para acceder al panel</p>
+      </div>
+
+      <form class="login-form" (ngSubmit)="onLogin()">
+
+        <div *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</div>
+
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <div class="input-wrapper">
+            <input type="email" id="email" name="email" [(ngModel)]="email"
+                   placeholder="correo@ejemplo.com" autofocus required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" name="password" [(ngModel)]="password"
+                   placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-pill btn-block" [disabled]="isLoading">
+          {{ isLoading ? 'Verificando...' : 'Iniciar Sesión' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Panel Cambio de Contraseña (primer acceso) ── -->
+    <div class="glass-panel login-card" *ngIf="mustChangePassword">
+      <div class="login-header">
+        <div class="logo">
+          <span class="logo-icon">🔑</span>
+          <h2>Establece tu Contraseña</h2>
+        </div>
+        <p class="subtitle">Es tu primer acceso. Por seguridad, crea una contraseña nueva.</p>
+      </div>
+
+      <form class="login-form" (ngSubmit)="onChangePassword()">
+
+        <div *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</div>
+
+        <div class="form-group">
+          <label>Nueva Contraseña</label>
+          <div class="input-wrapper">
+            <input type="password" [(ngModel)]="newPassword" name="newPwd"
+                   placeholder="Mínimo 6 caracteres" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar Nueva Contraseña</label>
+          <div class="input-wrapper">
+            <input type="password" [(ngModel)]="confirmPassword" name="confirmPwd"
+                   placeholder="Repite tu nueva contraseña" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-pill btn-block" [disabled]="isLoading">
+          {{ isLoading ? 'Guardando...' : 'Establecer y Entrar' }}
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>

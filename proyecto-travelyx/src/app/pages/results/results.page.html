@@ -1,0 +1,88 @@
+<ion-content [fullscreen]="true" class="results-content">
+  <!-- Header con Botón Atrás -->
+  <app-header></app-header>
+
+  <div class="results-container">
+    <div class="header-section">
+      <div class="back-nav" (click)="goBack()">
+        <span class="back-icon">←</span>
+        <span class="back-text">{{ langService.currentLang === 'es' ? 'Volver a filtros' : 'Back to filters' }}</span>
+      </div>
+      <h1 class="main-title">
+        {{ langService.currentLang === 'es' ? 'Tus Recomendaciones' : 'Your Recommendations' }}
+      </h1>
+      <p class="subtitle">
+        {{ langService.currentLang === 'es' ? 'De acuerdo a tus preferencias, estos son los mejores lugares para ti.' : 'According to your preferences, these are the best places for you.' }}
+      </p>
+    </div>
+
+    <!-- Lista de Resultados -->
+    <div class="cards-list">
+      
+      <!-- Si no hay resultados y NO estamos mostrando sugerencias -->
+      <div *ngIf="filteredPlaces.length === 0 && !isShowingSuggestions" class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <p>{{ langService.currentLang === 'es' ? 'No se encontraron resultados específicos. Intenta flexibilizar tus filtros.' : 'No specific results found. Try flexible filters.' }}</p>
+        <button class="btn-reset" (click)="goBack()">
+          {{ langService.currentLang === 'es' ? 'Ajustar Filtros' : 'Adjust Filters' }}
+        </button>
+      </div>
+
+      <!-- Cabecera de Sugerencias -->
+      <div class="suggestions-banner" *ngIf="isShowingSuggestions">
+        <div class="banner-icon">✨</div>
+        <div class="banner-text">
+          <h2>{{ langService.currentLang === 'es' ? 'No hubo coincidencias exactas, pero quizá te gusten estos:' : 'No exact matches found, but you might like these:' }}</h2>
+          <p>{{ langService.currentLang === 'es' ? 'Hemos buscado los mejores lugares de esta categoría para ti.' : 'We have searched for the best places in this category for you.' }}</p>
+        </div>
+      </div>
+
+      <!-- Resultados Exactos o Sugerencias -->
+      <div class="result-card" 
+           *ngFor="let place of (isShowingSuggestions ? suggestedPlaces : filteredPlaces)" 
+           (click)="selectPlace(place)">
+        <div class="card-image-content">
+          <img [src]="place.image ? place.image : 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800'"
+               class="place-img" />
+          <div class="card-tag" [ngClass]="'tag-' + place.type">
+            {{ place.type === 'hotel' ? '🏨' : (place.type === 'restaurant' ? '🍴' : '📍') }}
+          </div>
+        </div>
+
+        <div class="card-details">
+          <div class="title-row">
+            <h2 class="place-name">{{ place.name }}</h2>
+            <div class="rating" *ngIf="place.stars">
+              <span class="star">★</span>
+              <span class="stars-val">{{ place.stars }}</span>
+            </div>
+          </div>
+
+          <p class="place-description">
+            {{ place.description[langService.currentLang] | slice:0:120 }}...
+          </p>
+
+          <div class="card-footer">
+            <div class="meta-info">
+              <span class="price-indicator" *ngIf="place.price_range">
+                {{ '$'.repeat(place.price_range) }}
+              </span>
+              <span class="cuisine-badge" *ngIf="place.cuisine">
+                {{ place.cuisine | titlecase }}
+              </span>
+            </div>
+            <button class="btn-select">
+              {{ langService.currentLang === 'es' ? 'Ir ahora' : 'Go now' }}
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mascota Polly Guía -->
+  <div class="polly-container">
+    <app-polly></app-polly>
+  </div>
+</ion-content>

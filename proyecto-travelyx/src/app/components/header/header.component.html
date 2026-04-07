@@ -1,0 +1,15 @@
+<header class="kiosk-header">
+    <div class="logo-container">
+        <h1>TRAVELYX</h1>
+        <span class="subtitle">{{ langService.translate('subtitle') }}</span>
+    </div>
+    <div class="lang-toggle">
+        <div class="toggle-slide" [class.slide-en]="lang === 'en'"></div>
+        <button class="lang-btn" [class.active]="lang === 'es'" (click)="setLang('es')">
+            <span class="flag">🇲🇽</span> <span class="btn-text">MX - ES</span>
+        </button>
+        <button class="lang-btn" [class.active]="lang === 'en'" (click)="setLang('en')">
+            <span class="flag">🇺🇸</span> <span class="btn-text">US - EN</span>
+        </button>
+    </div>
+</header>

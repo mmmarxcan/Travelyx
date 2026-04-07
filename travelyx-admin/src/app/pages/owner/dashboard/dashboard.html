@@ -1,0 +1,64 @@
+<div class="owner-dashboard">
+
+  <div class="welcome-banner glass-panel">
+    <div class="welcome-text">
+      <h2>¡Bienvenido, {{ ownerName }}! 👋</h2>
+      <p class="text-muted">Desde aquí puedes gestionar tus negocios registrados en Travelyx.</p>
+    </div>
+    <a routerLink="/owner/places" class="btn btn-primary">+ Registrar Negocio</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card glass-panel">
+      <div class="stat-icon active">🟢</div>
+      <div class="stat-info">
+        <p class="stat-value">{{ activePlaces }}</p>
+        <p class="stat-label">Negocios Activos</p>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon pending">🟡</div>
+      <div class="stat-info">
+        <p class="stat-value">{{ pendingPlaces }}</p>
+        <p class="stat-label">Pendientes de Aprobación</p>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon total">🏪</div>
+      <div class="stat-info">
+        <p class="stat-value">{{ places.length }}</p>
+        <p class="stat-label">Total Registrados</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick list -->
+  <div class="recent-section glass-panel" *ngIf="places.length > 0">
+    <h3>Mis Negocios</h3>
+    <div class="place-list">
+      <div class="place-row" *ngFor="let place of places">
+        <div class="place-icon">🏪</div>
+        <div class="place-info">
+          <p class="place-name">{{ place.name }}</p>
+          <p class="place-cat">{{ place.category?.slug || 'sin categoría' }}</p>
+        </div>
+        <span class="status-badge" [class.active]="place.is_active">
+          {{ place.is_active ? 'Activo' : 'Pendiente' }}
+        </span>
+      </div>
+    </div>
+    <a routerLink="/owner/places" class="btn btn-outline" style="margin-top:1rem">
+      Ver todos mis negocios →
+    </a>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state glass-panel" *ngIf="places.length === 0">
+    <div class="empty-icon">🏗️</div>
+    <h3>Aún no tienes negocios registrados</h3>
+    <p class="text-muted">Comienza registrando tu primer negocio para que aparezca en el mapa del kiosko.</p>
+    <a routerLink="/owner/places" class="btn btn-primary">Registrar mi primer negocio</a>
+  </div>
+
+</div>

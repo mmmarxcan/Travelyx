@@ -1,0 +1,166 @@
+<!-- Travelyx SuperAdmin Overview - Version 1.1 -->
+<div class="overview-container">
+  <!-- Stats Grids -->
+  <div class="stats-grid">
+    <div class="stat-card glass-panel">
+      <div class="stat-icon tour">🏪</div>
+      <div class="stat-info">
+        <h3>{{ stats.totalPlaces }}</h3>
+        <p>Total Registrados</p>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon hotel">✅</div>
+      <div class="stat-info">
+        <h3>{{ stats.activePlaces }}</h3>
+        <p>Negocios Activos</p>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon rest">🟡</div>
+      <div class="stat-info">
+        <h3>{{ stats.pendingPlaces }}</h3>
+        <p>Pendientes de Aprobación</p>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon user">👥</div>
+      <div class="stat-info">
+        <h3>{{ stats.totalUsers }}</h3>
+        <p>Propietarios Únicos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Herramientas (Filtros y Búsqueda) -->
+  <div class="toolbar glass-panel">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar por nombre, dirección..." class="search-input">
+    </div>
+    <div class="filter-group">
+      <button class="filter-btn" [class.active]="filterCategory === 0" (click)="filterCategory = 0">Todos</button>
+      <button class="filter-btn" [class.active]="filterCategory === 1" (click)="filterCategory = 1">🏨 Hoteles</button>
+      <button class="filter-btn" [class.active]="filterCategory === 2" (click)="filterCategory = 2">🍽️ Restaurantes</button>
+      <button class="filter-btn" [class.active]="filterCategory === 3" (click)="filterCategory = 3">🌴 Zonas</button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: SOLICITUDES PENDIENTES -->
+  <section class="dashboard-section" *ngIf="getFilteredPending().length > 0">
+    <div class="section-header">
+      <h4>🔔 Solicitudes de Registro Pendientes</h4>
+      <span class="badge warning">{{ getFilteredPending().length }} esperando</span>
+    </div>
+    
+    <div class="table-container glass-panel">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Nombre del Negocio</th>
+            <th>Categoría</th>
+            <th>Propietario</th>
+            <th>Ubicación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let place of getFilteredPending()">
+            <td class="bold">{{ place.name }}</td>
+            <td><span class="category-tag">{{ place.category?.name_es }}</span></td>
+            <td class="text-xs">{{ place.owner?.full_name }}<br><span class="text-muted">{{ place.owner?.email }}</span></td>
+            <td class="text-xs">{{ place.address || 'Sin dirección' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-sm btn-approve" (click)="updatePlaceStatus(place.id, 'APPROVED', true)">
+                  <span>✓</span> Aprobar
+                </button>
+                <button class="btn-sm btn-reject" (click)="updatePlaceStatus(place.id, 'REJECTED', false)">
+                  <span>✕</span> Rechazar
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: NEGOCIOS ACTIVOS -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h4>🏪 Negocios Activos y Publicados</h4>
+      <span class="badge success">{{ getFilteredActive().length }} activos</span>
+    </div>
+    
+    <div class="table-container glass-panel">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Contacto</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let place of getFilteredActive()">
+            <td class="bold">{{ place.name }}</td>
+            <td><span class="category-tag">{{ place.category?.name_es }}</span></td>
+            <td class="text-xs">
+              <span *ngIf="place.phone">📞 {{ place.phone }}</span><br>
+              <span *ngIf="place.whatsapp">💬 WhatsApp</span>
+            </td>
+            <td><span class="status-dot online"></span> Público</td>
+            <td>
+              <button class="btn-sm btn-outline-danger" (click)="updatePlaceStatus(place.id, 'APPROVED', false)">
+                <span>⊘</span> Desactivar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="getFilteredActive().length === 0">
+            <td colspan="5" class="empty-state">No se encontraron negocios activos con estos filtros.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: NEGOCIOS DESACTIVADOS / RECHAZADOS -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h4>🚫 Negocios Desactivados o Rechazados</h4>
+      <span class="badge danger">{{ getFilteredInactive().length }} inactivos</span>
+    </div>
+    
+    <div class="table-container glass-panel">
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Razón / Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let place of getFilteredInactive()">
+            <td>{{ place.name }}</td>
+            <td>
+              <span class="badge danger" *ngIf="place.status === 'REJECTED'">Solicitud Rechazada</span>
+              <span class="badge info" *ngIf="place.status === 'APPROVED' && !place.is_active">Desactivado Manualmente</span>
+            </td>
+            <td>
+              <button class="btn-sm btn-restore" (click)="updatePlaceStatus(place.id, 'APPROVED', true)">
+                <span>↺</span> Restaurar / Activar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="getFilteredInactive().length === 0">
+            <td colspan="3" class="empty-state">No hay negocios desactivados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,15 @@
+<div class="polly-container">
+    <div class="speech-bubble" [class.hidden]="!showBubble">
+        <p>
+            {{ pollyText }}<span *ngIf="showCursor" class="cursor"></span>
+        </p>
+        <div class="bubble-arrow"></div>
+    </div>
+    <img 
+        [src]="mascotImage" 
+        alt="Mascota Polly" 
+        class="polly-mascot"
+        [ngClass]="mascotStateClass"
+        (click)="poke()"
+    >
+</div>
