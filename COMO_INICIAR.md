@@ -46,6 +46,25 @@ Esta es la aplicación que verán los turistas.
 
 ---
 
+## 💾 Migración de la Base de Datos
+
+Si necesitas mover el sistema a otra computadora y conservar los datos, hemos generado un archivo de respaldo.
+
+### Para Importar (en la computadora nueva):
+1. Asegúrate de tener instalado PostgreSQL en la nueva computadora.
+2. Asegúrate de que la nueva contraseña de PostgreSQL coincida con el backend, o actualiza el archivo `.env` en `travelyx-backend`.
+3. Crea una base de datos vacía llamada `travelyx_db` en la nueva computadora. Si usas la terminal de Windows con rutas estándar:
+   ```bash
+   "C:\Program Files\PostgreSQL\18\bin\createdb.exe" -U postgres travelyx_db
+   ```
+4. Importa los datos usando el archivo `travelyx_db_dump.sql` (asegúrate de copiar la carpeta Travelyx completa con este archivo a la nueva PC, abre la terminal donde está el archivo y ejecuta):
+   ```bash
+   "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d travelyx_db -f travelyx_db_dump.sql
+   ```
+*(Te pedirá tu contraseña de PostgreSQL durante estos procesos).*
+
+---
+
 ## 🛠️ Notas de Mantenimiento
 
 - **Base de Datos:** El sistema usa PostgreSQL. Asegúrate de que el servicio de PostgreSQL esté corriendo en tu computadora.
