@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonModal } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { closeOutline } from 'ionicons/icons';
 import { NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -15,7 +17,7 @@ import { PlacesService, Place } from '../../services/places';
   templateUrl: './results.page.html',
   styleUrls: ['./results.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, HeaderComponent, PollyComponent]
+  imports: [IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonModal, CommonModule, HeaderComponent, PollyComponent]
 })
 export class ResultsPage implements OnInit {
 
@@ -23,6 +25,8 @@ export class ResultsPage implements OnInit {
   suggestedPlaces: Place[] = [];
   category: string = 'hotel';
   isShowingSuggestions: boolean = false;
+  isMenuOpen: boolean = false;
+  selectedPlace: Place | null = null;
 
   constructor(
     public langService: LanguageService,
@@ -31,7 +35,9 @@ export class ResultsPage implements OnInit {
     private placesService: PlacesService,
     private navCtrl: NavController,
     private route: ActivatedRoute
-  ) { }
+  ) {
+    addIcons({ closeOutline });
+  }
 
   ngOnInit() {
     this.category = this.route.snapshot.queryParams['category'] || 'hotel';
@@ -98,7 +104,14 @@ export class ResultsPage implements OnInit {
     return p;
   }
 
+  openMenu(event: Event, place: Place) {
+    event.stopPropagation();
+    this.selectedPlace = place;
+    this.isMenuOpen = true;
+  }
+
   selectPlace(place: Place) {
+    this.selectedPlace = place;
     const lang = this.langService.currentLang;
     const msg = lang === 'es' 
       ? `¡Excelente elección! Te guiaré hacia ${place.name}.` 
@@ -111,6 +124,13 @@ export class ResultsPage implements OnInit {
         queryParams: { placeId: place.id }
       });
     }, 1000);
+  }
+
+  goToPlaceFromModal() {
+    if (this.selectedPlace) {
+      this.isMenuOpen = false;
+      this.selectPlace(this.selectedPlace);
+    }
   }
 
   goBack() {

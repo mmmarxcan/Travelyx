@@ -24,6 +24,17 @@ export interface Place {
   price_adult?: number;
   estimated_duration?: string;
   image?: string;
+  dishes?: Dish[];
+}
+
+export interface Dish {
+  id: number;
+  name_es: string;
+  name_en?: string;
+  description_es?: string;
+  description_en?: string;
+  price: number;
+  image_url?: string;
 }
 
 @Injectable({
@@ -68,7 +79,8 @@ export class PlacesService {
       requires_reservation: p.requires_reservation,
       price_adult: p.price_adult,
       estimated_duration: p.estimated_duration,
-      image: mainImage
+      image: mainImage,
+      dishes: p.dishes
     };
   }
 

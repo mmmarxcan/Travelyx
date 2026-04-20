@@ -12,7 +12,8 @@ router.get('/', async (req, res) => {
         category: true,
         translations: true,
         owner: { select: { id: true, email: true, full_name: true } },
-        _count: { select: { images: true } }
+        _count: { select: { images: true } },
+        dishes: true
       },
       orderBy: { id: 'desc' }
     });

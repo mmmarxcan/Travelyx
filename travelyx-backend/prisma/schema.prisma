@@ -86,8 +86,25 @@ model Place {
   translations PlaceTranslation[]
   images       PlaceImage[]
   amenities    PlaceAmenity[]
+  dishes       Dish[]
 
   @@map("places")
+}
+
+model Dish {
+  id              Int      @id @default(autoincrement())
+  place_id        Int
+  name_es         String
+  name_en         String?
+  description_es  String?  @db.Text
+  description_en  String?  @db.Text
+  price           Float    @default(0)
+  image_url       String?
+  sort_order      Int      @default(0)
+
+  place Place @relation(fields: [place_id], references: [id], onDelete: Cascade)
+
+  @@map("dishes")
 }
 
 model PlaceImage {

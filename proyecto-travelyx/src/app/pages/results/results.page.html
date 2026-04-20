@@ -4,13 +4,15 @@
 
   <div class="results-container">
     <div class="header-section">
-      <div class="back-nav" (click)="goBack()">
-        <span class="back-icon">←</span>
-        <span class="back-text">{{ langService.currentLang === 'es' ? 'Volver a filtros' : 'Back to filters' }}</span>
+      <div class="header-top-row">
+        <h1 class="main-title">
+          {{ langService.currentLang === 'es' ? 'Tus Recomendaciones' : 'Your Recommendations' }}
+        </h1>
+        <button class="btn-return-filters" (click)="goBack()">
+          <span class="icon">⚙️</span>
+          {{ langService.currentLang === 'es' ? 'Ajustar Preferencias' : 'Adjust Preferences' }}
+        </button>
       </div>
-      <h1 class="main-title">
-        {{ langService.currentLang === 'es' ? 'Tus Recomendaciones' : 'Your Recommendations' }}
-      </h1>
       <p class="subtitle">
         {{ langService.currentLang === 'es' ? 'De acuerdo a tus preferencias, estos son los mejores lugares para ti.' : 'According to your preferences, these are the best places for you.' }}
       </p>
@@ -71,15 +73,61 @@
                 {{ place.cuisine | titlecase }}
               </span>
             </div>
-            <button class="btn-select">
-              {{ langService.currentLang === 'es' ? 'Ir ahora' : 'Go now' }}
-              <span class="btn-arrow">→</span>
-            </button>
+            
+            <div class="action-buttons">
+              <button class="btn-menu" *ngIf="place.type === 'restaurant'" (click)="openMenu($event, place)">
+                🍽️ {{ langService.currentLang === 'es' ? 'Menú' : 'Menu' }}
+              </button>
+              <button class="btn-select">
+                <span>{{ langService.currentLang === 'es' ? 'Ir' : 'Go' }}</span>
+                <span class="btn-arrow">→</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Modal del Menú de Platillos -->
+  <ion-modal [isOpen]="isMenuOpen" (didDismiss)="isMenuOpen = false" class="menu-modal" [initialBreakpoint]="0.75" [breakpoints]="[0, 0.75, 1]">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ selectedPlace?.name }} - {{ langService.currentLang === 'es' ? 'Menú' : 'Menu' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isMenuOpen = false">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding menu-modal-content">
+        <div class="dishes-grid">
+          <div class="dish-card" *ngFor="let dish of selectedPlace?.dishes">
+            <div class="dish-image-wrapper">
+              <img [src]="dish.image_url || 'assets/placeholder-dish.png'" class="dish-img">
+              <div class="dish-price">${{ dish.price }}</div>
+            </div>
+            <div class="dish-info">
+              <h3>{{ langService.currentLang === 'es' ? dish.name_es : (dish.name_en || dish.name_es) }}</h3>
+              <p>{{ langService.currentLang === 'es' ? dish.description_es : (dish.description_en || dish.description_es) }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="!selectedPlace?.dishes || selectedPlace?.dishes?.length === 0" class="no-dishes">
+          <p>{{ langService.currentLang === 'es' ? 'No hay platillos registrados aún.' : 'No dishes registered yet.' }}</p>
+        </div>
+        
+        <div class="modal-footer">
+          <button class="btn-select-full" (click)="goToPlaceFromModal()">
+            {{ langService.currentLang === 'es' ? 'Ir al restaurante ahora' : 'Go to restaurant now' }} →
+          </button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
   <!-- Mascota Polly Guía -->
   <div class="polly-container">

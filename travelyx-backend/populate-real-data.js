@@ -272,6 +272,38 @@ async function populate() {
     });
 
     console.log(`  ✅ ${newPlace.name}`);
+
+    // Si es un restaurante, agregar platillos de prueba
+    if (p.category_id === 2) {
+      const sampleDishes = [
+        {
+          name_es: 'Ceviche Mixto Especial',
+          name_en: 'Special Mixed Ceviche',
+          description_es: 'Fresco ceviche de pulpo, camarón y pescado marinado en limón yucateco y habanero.',
+          description_en: 'Fresh octopus, shrimp and fish ceviche marinated in Yucatecan lime and habanero.',
+          price: 185.00,
+          image_url: 'https://images.unsplash.com/photo-1534080564677-6e7b233a76e1?auto=format&fit=crop&q=80&w=800'
+        },
+        {
+          name_es: 'Pescado Tikin Xic',
+          name_en: 'Tikin Xic Fish',
+          description_es: 'Filete de pescado marinado en achiote y asado a la leña, servido con arroz blanco.',
+          description_en: 'Fish fillet marinated in achiote and wood-fired, served with white rice.',
+          price: 220.00,
+          image_url: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=800'
+        }
+      ];
+
+      for (const dish of sampleDishes) {
+        await prisma.dish.create({
+          data: {
+            place_id: newPlace.id,
+            ...dish
+          }
+        });
+      }
+      console.log(`     🍴 Añadidos ${sampleDishes.length} platillos.`);
+    }
   }
 
   console.log('\n🎉 ¡Listo! Todos los lugares del Malecón han sido insertados.');
