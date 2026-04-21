@@ -46,13 +46,6 @@ export class PollyComponent implements OnInit, OnDestroy {
     this.subEnd = this.pollyService.speechEnd$.subscribe(() => {
       this.handleSpeechEnd();
     });
-
-    setTimeout(() => {
-      if (!this.greetingDone) {
-        this.pollyService.speak(this.langService.translate('welcome'), 'TALK');
-        this.greetingDone = true;
-      }
-    }, 1500);
   }
 
   ngOnDestroy() {
@@ -66,7 +59,12 @@ export class PollyComponent implements OnInit, OnDestroy {
   }
 
   private handleSpeak(msg: PollyMessage) {
-    if (!msg.text) return; // Ignore IDLE resets
+    if (!msg.text) {
+      this.currentMsg = null;
+      this.closeBubble();
+      return;
+    }
+    
     this.currentMsg = msg;
     this.clearTimers();
     this.showBubble = true;

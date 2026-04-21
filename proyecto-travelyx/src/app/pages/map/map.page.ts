@@ -34,6 +34,7 @@ export class MapPage implements OnInit, OnDestroy {
   qrTimeout = 30;
   private timerInterval: any;
   public selectedPlaceForQr: Place | null = null;
+  private activePlaceId: string | null = null;
 
   // Centro del Malecón (Kiosko)
   private readonly center: L.LatLngExpression = [21.2882, -89.6580];
@@ -254,12 +255,15 @@ export class MapPage implements OnInit, OnDestroy {
     const text = `${place.name}. ${description}`;
     
     this.drawRoute(place);
+    this.activePlaceId = place.id;
     await this.pollyService.speak(text, 'HAPPY');
 
     // Ahora esperamos con precisión hasta que Polly termine de hablar la descripción
-    this.selectedPlaceForQr = place;
-    const promptText = this.langService.translate('qrPromptDesc');
-    this.pollyService.speak(promptText, 'EXCITED', true);
+    if (this.activePlaceId === place.id) {
+      this.selectedPlaceForQr = place;
+      const promptText = this.langService.translate('qrPromptDesc');
+      this.pollyService.speak(promptText, 'EXCITED', true);
+    }
   }
 
   private drawRoute(place: Place) {
