@@ -48,7 +48,7 @@ export class ResultsPage implements OnInit {
       ? '¡He encontrado estas opciones increíbles para ti! ¿Cuál te gustaría visitar?' 
       : 'I found these amazing options for you! Which one would you like to visit?';
     
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY', 5000), 800);
+    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 800);
   }
 
   loadResults() {
@@ -64,9 +64,12 @@ export class ResultsPage implements OnInit {
           ? 'No encontré una coincidencia exacta, pero aquí tienes unas sugerencias geniales que te gustarán.' 
           : 'I couldn\'t find an exact match, but here are some great suggestions you might like.';
         
-        setTimeout(() => this.pollyService.speak(msg, 'HAPPY', 5000), 1000);
+        setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 1000);
       }
     });
+  }
+
+  ionViewWillLeave() {
   }
 
   private applyPreferences(places: Place[], category: string): Place[] {
@@ -117,7 +120,7 @@ export class ResultsPage implements OnInit {
       ? `¡Excelente elección! Te guiaré hacia ${place.name}.` 
       : `Excellent choice! I'll guide you to ${place.name}.`;
     
-    this.pollyService.speak(msg, 'EXCITED', 4000);
+    this.pollyService.speak(msg, 'EXCITED');
 
     setTimeout(() => {
       this.navCtrl.navigateForward('/map', {
@@ -134,6 +137,7 @@ export class ResultsPage implements OnInit {
   }
 
   goBack() {
+    this.pollyService.stop();
     this.navCtrl.navigateBack(`/${this.category}-filters`);
   }
 }

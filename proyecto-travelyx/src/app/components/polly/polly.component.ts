@@ -15,6 +15,7 @@ export class PollyComponent implements OnInit, OnDestroy {
   public pollyText = '';
   public showBubble = false;
   public showCursor = false;
+  public showQrOptions = false;
   public mascotStateClass = 'idle-anim';
   public mascotImage = 'assets/polly/PULPITO 2.png';
 
@@ -26,13 +27,15 @@ export class PollyComponent implements OnInit, OnDestroy {
   };
 
   private sub!: Subscription;
+  private subEnd!: Subscription;
   private typingTimeout: any;
   private resetTimeout: any;
   private greetingDone = false;
+  private currentMsg: PollyMessage | null = null;
 
   constructor(
     private pollyService: PollyService,
-    private langService: LanguageService,
+    public langService: LanguageService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -40,10 +43,13 @@ export class PollyComponent implements OnInit, OnDestroy {
     this.sub = this.pollyService.speak$.subscribe(msg => {
       this.handleSpeak(msg);
     });
+    this.subEnd = this.pollyService.speechEnd$.subscribe(() => {
+      this.handleSpeechEnd();
+    });
 
     setTimeout(() => {
       if (!this.greetingDone) {
-        this.pollyService.speak(this.langService.translate('welcome'), 'TALK', 4000);
+        this.pollyService.speak(this.langService.translate('welcome'), 'TALK');
         this.greetingDone = true;
       }
     }, 1500);
@@ -51,18 +57,22 @@ export class PollyComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.sub) this.sub.unsubscribe();
+    if (this.subEnd) this.subEnd.unsubscribe();
     this.clearTimers();
   }
 
   poke() {
-    this.pollyService.speak(this.langService.translate('poke'), 'EXCITED', 2000);
+    this.pollyService.speak(this.langService.translate('poke'), 'EXCITED');
   }
 
   private handleSpeak(msg: PollyMessage) {
+    if (!msg.text) return; // Ignore IDLE resets
+    this.currentMsg = msg;
     this.clearTimers();
     this.showBubble = true;
     this.pollyText = '';
     this.showCursor = true;
+    this.showQrOptions = false;
 
     this.mascotImage = this.POLLY_STATES[msg.state] || this.POLLY_STATES['TALK'];
     
@@ -77,12 +87,37 @@ export class PollyComponent implements OnInit, OnDestroy {
 
     this.typeWriter(msg.text, 0, () => {
       this.showCursor = false;
-      this.resetTimeout = setTimeout(() => {
-        this.showBubble = false;
+    });
+  }
+
+  private handleSpeechEnd() {
+    // Si la burbuja actual requiere respuesta de QR, no la cerramos todavía.
+    // Solo detenemos la animación de hablar y mostramos los botones.
+    if (this.currentMsg && this.currentMsg.requireQrResponse) {
         this.mascotImage = this.POLLY_STATES['IDLE'];
         this.mascotStateClass = 'idle-anim';
-      }, msg.duration);
-    });
+        this.showQrOptions = true;
+        // start 30s timeout here
+        this.resetTimeout = setTimeout(() => {
+           this.closeBubble();
+        }, 30000);
+    } else {
+        // close bubble completely
+        this.closeBubble();
+    }
+  }
+
+  private closeBubble() {
+    this.showBubble = false;
+    this.showQrOptions = false;
+    this.mascotImage = this.POLLY_STATES['IDLE'];
+    this.mascotStateClass = 'idle-anim';
+  }
+
+  public answerQr(wantsQr: boolean) {
+    this.showQrOptions = false;
+    this.closeBubble();
+    this.pollyService.sendQrResponse(wantsQr);
   }
 
   private typeWriter(text: string, i: number, cb: () => void) {

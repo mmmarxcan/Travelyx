@@ -3,6 +3,10 @@
         <p>
             {{ pollyText }}<span *ngIf="showCursor" class="cursor"></span>
         </p>
+        <div class="qr-options" *ngIf="showQrOptions">
+            <button class="qr-btn-yes" (click)="answerQr(true)">{{ langService.translate('qrBtnYes') }}</button>
+            <button class="qr-btn-no" (click)="answerQr(false)">{{ langService.translate('qrBtnNo') }}</button>
+        </div>
         <div class="bubble-arrow"></div>
     </div>
     <img 

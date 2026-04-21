@@ -56,7 +56,10 @@ export class HotelFiltersPage {
     const msg = lang === 'es'
       ? '¡Ayúdame a encontrar el hotel perfecto para ti! Elige tus preferencias.'
       : "Let me find the perfect hotel for you! Choose your preferences.";
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY', 5000), 600);
+    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 600);
+  }
+
+  ionViewWillLeave() {
   }
 
   selectBudget(id: number) {
@@ -87,7 +90,7 @@ export class HotelFiltersPage {
     const msg = lang === 'es'
       ? '¡Perfecto! Aquí están los hoteles que más se acercan a lo que buscas.'
       : "Perfect! Here are the hotels that best match your preferences.";
-    this.pollyService.speak(msg, 'EXCITED', 5000);
+    this.pollyService.speak(msg, 'EXCITED');
 
     setTimeout(() => this.navCtrl.navigateForward('/results', {
       queryParams: { category: 'hotel' }
@@ -95,6 +98,7 @@ export class HotelFiltersPage {
   }
 
   goBack() {
+    this.pollyService.stop();
     this.navCtrl.navigateBack('/home');
   }
 }

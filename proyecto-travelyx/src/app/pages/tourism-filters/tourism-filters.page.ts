@@ -54,7 +54,10 @@ export class TourismFiltersPage {
     const msg = lang === 'es'
       ? '¡Progreso tiene historia y belleza! Cuéntame qué tipo de experiencia buscas.'
       : "Progreso has history and beauty! Tell me what kind of experience you're looking for.";
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY', 6000), 600);
+    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 600);
+  }
+
+  ionViewWillLeave() {
   }
 
   selectType(id: string) {
@@ -83,7 +86,7 @@ export class TourismFiltersPage {
     const msg = lang === 'es'
       ? '¡Vamos a explorar! Te muestro los lugares más interesantes cerca del malecón.'
       : "Let's explore! Here are the most interesting spots near the boardwalk.";
-    this.pollyService.speak(msg, 'EXCITED', 5000);
+    this.pollyService.speak(msg, 'EXCITED');
 
     setTimeout(() => this.navCtrl.navigateForward('/results', {
       queryParams: { category: 'tourism' }
@@ -91,6 +94,7 @@ export class TourismFiltersPage {
   }
 
   goBack() {
+    this.pollyService.stop();
     this.navCtrl.navigateBack('/home');
   }
 }

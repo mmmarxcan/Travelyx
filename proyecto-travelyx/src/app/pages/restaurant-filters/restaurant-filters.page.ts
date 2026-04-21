@@ -56,7 +56,10 @@ export class RestaurantFiltersPage {
     const msg = lang === 'es'
       ? '¡Tenemos los mejores sabores del malecón! Dime qué te apetece hoy.'
       : "We have the best flavors on the boardwalk! Tell me what you feel like today.";
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY', 5000), 600);
+    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 600);
+  }
+
+  ionViewWillLeave() {
   }
 
   selectPrice(id: number) {
@@ -95,7 +98,7 @@ export class RestaurantFiltersPage {
     const msg = lang === 'es'
       ? '¡Provecho! Aquí encontrarás los mejores restaurantes según tus gustos.'
       : "Enjoy your meal! Here are the best restaurants matching your taste.";
-    this.pollyService.speak(msg, 'EXCITED', 5000);
+    this.pollyService.speak(msg, 'EXCITED');
 
     setTimeout(() => this.navCtrl.navigateForward('/results', {
       queryParams: { category: 'restaurant' }
@@ -103,6 +106,7 @@ export class RestaurantFiltersPage {
   }
 
   goBack() {
+    this.pollyService.stop();
     this.navCtrl.navigateBack('/home');
   }
 }

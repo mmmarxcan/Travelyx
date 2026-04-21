@@ -101,6 +101,39 @@
     }
 }
 
+/* Botón Flotante para solicitar QR */
+.fab-qr-container {
+    position: absolute;
+    top: 110px;
+    right: 20px;
+    z-index: 100;
+    pointer-events: auto;
+    animation: dropInFade 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+    .fab-qr-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: 2px solid white;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(0, 119, 182, 0.4);
+        cursor: pointer;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        ion-icon {
+            font-size: 28px;
+        }
+
+        &:active {
+            transform: scale(0.9);
+        }
+    }
+}
+
 .bottom-sheet {
     position: absolute;
     bottom: 30px;
@@ -360,4 +393,131 @@
 
 ::ng-deep .leaflet-marker-icon {
     animation: markerDrop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+}
+
+/* ===============================
+   QR MODAL STYLES (PREMIUM)
+   =============================== */
+::ng-deep .premium-qr-modal {
+    --width: 90%;
+    --max-width: 450px;
+    --height: auto;
+    --border-radius: 30px;
+    --background: transparent;
+    
+    align-items: center;
+    justify-content: center;
+
+    &::part(content) {
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 25px 50px rgba(0, 119, 182, 0.2);
+        overflow: visible;
+        margin: auto;
+    }
+}
+
+.qr-modal-wrapper {
+    position: relative;
+    padding: 40px 30px;
+    text-align: center;
+    color: #333;
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.05);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    
+    ion-icon {
+        font-size: 24px;
+        color: #666;
+    }
+
+    &:active {
+        background: rgba(0,0,0,0.1);
+    }
+}
+
+.qr-view {
+    animation: dropInFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    h2 {
+        font-weight: 900;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    p {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.4;
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+}
+
+.code-view {
+    .qr-code-box {
+        position: relative;
+        display: inline-block;
+        padding: 15px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+
+        img {
+            width: 250px;
+            height: 250px;
+            display: block;
+            border-radius: 10px;
+        }
+
+        /* Decorative Corners */
+        .qr-corners {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 4px solid var(--primary);
+            border-radius: 8px;
+            
+            &.top-left { top: -5px; left: -5px; border-right: none; border-bottom: none; }
+            &.top-right { top: -5px; right: -5px; border-left: none; border-bottom: none; }
+            &.bottom-left { bottom: -5px; left: -5px; border-right: none; border-top: none; }
+            &.bottom-right { bottom: -5px; right: -5px; border-left: none; border-top: none; }
+        }
+    }
+
+    .timer-bar {
+        width: 100%;
+        height: 6px;
+        background: #eee;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 10px;
+
+        .timer-progress {
+            height: 100%;
+            background: var(--primary);
+            transition: width 1s linear;
+        }
+    }
 }

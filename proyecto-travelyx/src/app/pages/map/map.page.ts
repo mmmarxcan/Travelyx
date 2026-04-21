@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavController } from '@ionic/angular';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonModal, IonIcon } from '@ionic/angular/standalone';
 import { ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
+import * as QRCode from 'qrcode';
+import { addIcons } from 'ionicons';
+import { closeOutline } from 'ionicons/icons';
 import { LanguageService } from '../../services/language.service';
 import { PollyService } from '../../services/polly.service';
 import { PlacesService, Place } from '../../services/places';
@@ -16,13 +19,21 @@ import { HeaderComponent } from '../../components/header/header.component';
   templateUrl: './map.page.html',
   styleUrls: ['./map.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, PollyComponent, HeaderComponent]
+  imports: [IonContent, IonModal, IonIcon, CommonModule, PollyComponent, HeaderComponent]
 })
 export class MapPage implements OnInit, OnDestroy {
   private map!: L.Map;
   private currentRoute: L.Polyline | null = null;
   private markers: L.Marker[] = [];
   private kioskMarker!: L.Marker;
+  private offlineRoutes: { [key: string]: number[][] } = {};
+  
+  // Estado del QR
+  showQrModal = false;
+  qrDataUrl: string | null = null;
+  qrTimeout = 30;
+  private timerInterval: any;
+  public selectedPlaceForQr: Place | null = null;
 
   // Centro del Malecón (Kiosko)
   private readonly center: L.LatLngExpression = [21.2882, -89.6580];
@@ -34,13 +45,32 @@ export class MapPage implements OnInit, OnDestroy {
     private placesService: PlacesService,
     private pollyService: PollyService,
     private prefService: PreferencesService
-  ) { }
+  ) { 
+    addIcons({ closeOutline });
+  }
 
   ngOnInit() {
+    this.pollyService.qrResponse$.subscribe(wantsQr => {
+      if (wantsQr) {
+        this.requestQrCode();
+      }
+    });
+
+    this.loadOfflineRoutes();
     setTimeout(() => {
       this.initMap();
       this.listenToLanguage();
     }, 100);
+  }
+
+  private loadOfflineRoutes() {
+    fetch('/assets/routes.json')
+      .then(res => res.json())
+      .then(data => {
+        this.offlineRoutes = data;
+        console.log('Rutas offline cargadas correctamente');
+      })
+      .catch(err => console.error('Error cargando rutas offline:', err));
   }
 
   private listenToLanguage() {
@@ -56,6 +86,9 @@ export class MapPage implements OnInit, OnDestroy {
     if (this.map) {
       this.map.remove();
     }
+  }
+
+  ionViewWillLeave() {
   }
 
   private initMap() {
@@ -211,13 +244,22 @@ export class MapPage implements OnInit, OnDestroy {
     this.markers = [];
   }
 
-  private onPlaceClick(place: Place) {
+  private async onPlaceClick(place: Place) {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.showQrModal = false;
+    this.selectedPlaceForQr = null;
+
     const lang = this.langService.currentLang;
     const description = place.description[lang];
     const text = `${place.name}. ${description}`;
     
-    this.pollyService.speak(text, 'HAPPY', 7000);
     this.drawRoute(place);
+    await this.pollyService.speak(text, 'HAPPY');
+
+    // Ahora esperamos con precisión hasta que Polly termine de hablar la descripción
+    this.selectedPlaceForQr = place;
+    const promptText = this.langService.translate('qrPromptDesc');
+    this.pollyService.speak(promptText, 'EXCITED', true);
   }
 
   private drawRoute(place: Place) {
@@ -225,27 +267,86 @@ export class MapPage implements OnInit, OnDestroy {
       this.map.removeLayer(this.currentRoute);
     }
 
-    // Lógica de "Calle Principal": 
-    // 1. Sale del Kiosko (21.2882, -89.6580)
-    // 2. Se mueve por la latitud del Malecón (21.2882) hasta la longitud del destino
-    // 3. Entra al establecimiento (latitud real del destino)
-    
-    const kioskCoords: L.LatLngTuple = [21.2882, -89.6580];
-    const maleconPivot: L.LatLngTuple = [21.2882, place.lng];
-    const finalCoords: L.LatLngTuple = [place.lat, place.lng];
+    const routeData = this.offlineRoutes[place.id];
 
-    this.currentRoute = L.polyline([kioskCoords, maleconPivot, finalCoords], {
-      color: '#0077B6',
-      weight: 6,
-      opacity: 0.8,
-      dashArray: '10, 15',
-      className: 'animated-route'
-    }).addTo(this.map);
+    if (routeData && routeData.length > 0) {
+      // OSRM devuelve [lng, lat], Leaflet usa [lat, lng]
+      const latLngs: L.LatLngTuple[] = routeData.map(coord => [coord[1], coord[0]]);
+      
+      this.currentRoute = L.polyline(latLngs, {
+        color: '#0077B6',
+        weight: 6,
+        opacity: 0.8,
+        dashArray: '10, 15',
+        className: 'animated-route'
+      }).addTo(this.map);
+    } else {
+      // Fallback a línea recta si no existe la ruta en el archivo json
+      const kioskCoords: L.LatLngTuple = [21.2882, -89.6580];
+      const finalCoords: L.LatLngTuple = [place.lat, place.lng];
+      
+      this.currentRoute = L.polyline([kioskCoords, finalCoords], {
+        color: '#0077B6',
+        weight: 6,
+        opacity: 0.8,
+        dashArray: '10, 15',
+        className: 'animated-route'
+      }).addTo(this.map);
+    }
 
     this.map.fitBounds(this.currentRoute.getBounds().pad(0.5));
   }
 
   goBack() {
+    this.pollyService.stop();
     this.navCtrl.navigateBack('/home');
+  }
+
+  // --- LÓGICA DEL QR ---
+  requestQrCode() {
+    this.generateQrCode();
+    this.showQrModal = true;
+  }
+
+  closeQrModal() {
+    this.showQrModal = false;
+    this.qrDataUrl = null;
+    if (this.timerInterval) clearInterval(this.timerInterval);
+  }
+
+  async generateQrCode() {
+    if (!this.selectedPlaceForQr) return;
+    
+    // Generar URL de Google Maps
+    const origin = '21.2882,-89.6580';
+    const dest = `${this.selectedPlaceForQr.lat},${this.selectedPlaceForQr.lng}`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=driving`;
+    
+    try {
+      this.qrDataUrl = await QRCode.toDataURL(url, {
+        width: 300,
+        margin: 1,
+        color: { dark: '#03045E', light: '#FFFFFF' }
+      });
+      this.startQrTimer();
+      
+      const lang = this.langService.currentLang;
+      const scanText = lang === 'es' ? '¡Escanea el código con tu cámara!' : 'Scan the code with your camera!';
+      this.pollyService.speak(scanText, 'EXCITED');
+    } catch (err) {
+      console.error('Error generando QR offline', err);
+    }
+  }
+
+  private startQrTimer() {
+    this.qrTimeout = 30;
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    
+    this.timerInterval = setInterval(() => {
+      this.qrTimeout--;
+      if (this.qrTimeout <= 0) {
+        this.closeQrModal();
+      }
+    }, 1000);
   }
 }

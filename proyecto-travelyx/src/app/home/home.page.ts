@@ -35,19 +35,14 @@ export class HomePage {
   private startRandomGreeting() {
     // Saludo inicial aleatorio tras un pequeño delay
     setTimeout(() => {
-        // Solo saludar si seguimos en esta vista
-        const variant = Math.floor(Math.random() * 4) + 1; // 1 a 4
-        const key = `welcome_${variant}`;
-        this.polly.speak(this.langService.translate(key), 'TALK', 5000);
+        this.polly.speak(this.langService.translate('welcome'), 'TALK');
     }, 1500);
   }
 
   private resetIdleTimer() {
     this.clearTimers();
     this.idleTimer = setTimeout(() => {
-      const tipVariant = Math.floor(Math.random() * 2) + 1; // 1 a 2
-      const key = `tip_${tipVariant}`;
-      this.polly.speak(this.langService.translate(key), 'HAPPY', 6000);
+      this.polly.speak(this.langService.translate('tip'), 'HAPPY');
       this.resetIdleTimer(); // Reiniciar para el siguiente tip
     }, 25000); // 25 segundos de inactividad
   }
@@ -58,16 +53,17 @@ export class HomePage {
 
   actionClick(id: string) {
     this.resetIdleTimer(); // El usuario interactuó
-    this.polly.speak(this.langService.translate(id), 'EXCITED', 4000);
+    this.polly.stop(); // Detener cualquier diálogo previo
+    this.polly.speak(this.langService.translate(id), 'EXCITED');
     
     if (id === 'hotels') {
-      setTimeout(() => this.navCtrl.navigateForward('/hotel-filters'), 800);
+      setTimeout(() => this.navCtrl.navigateForward('/hotel-filters'), 1500);
     } else if (id === 'restaurants') {
-      setTimeout(() => this.navCtrl.navigateForward('/restaurant-filters'), 800);
+      setTimeout(() => this.navCtrl.navigateForward('/restaurant-filters'), 1500);
     } else if (id === 'tourism') {
-      setTimeout(() => this.navCtrl.navigateForward('/tourism-filters'), 800);
+      setTimeout(() => this.navCtrl.navigateForward('/tourism-filters'), 1500);
     } else if (id === 'map') {
-      setTimeout(() => this.navCtrl.navigateForward('/map'), 1000);
+      setTimeout(() => this.navCtrl.navigateForward('/map'), 1500);
     }
   }
 }

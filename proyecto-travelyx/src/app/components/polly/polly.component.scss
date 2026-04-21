@@ -111,3 +111,37 @@
     50% { transform: scale(1.1) translateY(-60px); }
     100% { transform: scale(1) translateY(0); }
 }
+
+/* Interacciones QR dentro de la burbuja */
+.qr-options {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+
+    button {
+        padding: 10px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+
+        &.qr-btn-yes {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 119, 182, 0.3);
+
+            &:active { transform: scale(0.95); }
+        }
+
+        &.qr-btn-no {
+            background: rgba(0,0,0,0.05);
+            color: #555;
+
+            &:active { background: rgba(0,0,0,0.1); }
+        }
+    }
+}

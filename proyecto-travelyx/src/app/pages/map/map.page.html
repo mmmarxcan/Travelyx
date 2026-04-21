@@ -21,6 +21,13 @@
     </button>
   </div>
 
+  <!-- Botón Flotante para solicitar QR (visible solo si hay ruta) -->
+  <div class="fab-qr-container" *ngIf="selectedPlaceForQr">
+    <button class="fab-qr-btn" (click)="requestQrCode()">
+        <ion-icon name="qr-code-outline"></ion-icon>
+    </button>
+  </div>
+
   <!-- P3: Bottom Card (Ficha Inferior Flotante) -->
   <div class="bottom-sheet floating-card">
       
@@ -43,4 +50,34 @@
           </div>
       </div>
   </div>
+  <!-- QR Code Modal Flotante -->
+  <ion-modal [isOpen]="showQrModal" (didDismiss)="closeQrModal()" cssClass="premium-qr-modal" [backdropDismiss]="false">
+    <ng-template>
+      <div class="qr-modal-wrapper">
+        <button class="close-modal-btn" (click)="closeQrModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+
+        <!-- Vista: Mostrar el QR Generado -->
+        <div class="qr-view code-view" *ngIf="qrDataUrl">
+          <h2>{{ langService.translate('qrScanTitle') }}</h2>
+          <p>{{ langService.translate('qrScanDesc') }}</p>
+          
+          <div class="qr-code-box">
+            <div class="qr-corners top-left"></div>
+            <div class="qr-corners top-right"></div>
+            <div class="qr-corners bottom-left"></div>
+            <div class="qr-corners bottom-right"></div>
+            <img [src]="qrDataUrl" alt="QR Code" />
+          </div>
+          
+          <div class="timer-bar">
+            <div class="timer-progress" [style.width.%]="(qrTimeout / 30) * 100"></div>
+          </div>
+        </div>
+
+      </div>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

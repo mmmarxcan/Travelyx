@@ -23,7 +23,7 @@ export class HeaderComponent {
   setLang(l: 'es' | 'en') {
     if (this.lang !== l) {
       this.langService.setLanguage(l);
-      this.polly.speak(this.langService.translate('langChanged'), 'HAPPY', 3000);
+      this.polly.speak(this.langService.translate('langChanged'), 'HAPPY');
     }
   }
 }
