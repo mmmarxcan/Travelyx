@@ -197,10 +197,8 @@
      * - VALOR_DESEADO: porcentaje de la pantalla (posición relativa)
      * - MÁXIMO: 100vw/vh - 70px (siempre visible del otro lado)
      */
-    left: calc(50% - 200px);
-    /* Centrado horizontal (30px = mitad del botón de 60px) */
-    top: clamp(-250px, 11vh, -250px);
-    /* Justo debajo del header */
+    left: 30px;
+    top: 110px; /* Justo debajo del header */
     bottom: auto;
     right: auto;
     margin: 0;
