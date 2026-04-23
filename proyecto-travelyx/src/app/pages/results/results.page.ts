@@ -43,12 +43,13 @@ export class ResultsPage implements OnInit {
     this.category = this.route.snapshot.queryParams['category'] || 'hotel';
     this.loadResults();
     
-    const lang = this.langService.currentLang;
-    const msg = lang === 'es' 
-      ? '¡He encontrado estas opciones increíbles para ti! ¿Cuál te gustaría visitar?' 
-      : 'I found these amazing options for you! Which one would you like to visit?';
-    
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 800);
+    setTimeout(() => {
+      const lang = this.langService.currentLang;
+      const msg = lang === 'es'
+        ? '¡He encontrado estas opciones increíbles para ti! ¿Cuál te gustaría visitar?'
+        : 'I found these amazing options for you! Which one would you like to visit?';
+      this.pollyService.speak(msg, 'HAPPY');
+    }, 800);
   }
 
   loadResults() {
@@ -59,12 +60,13 @@ export class ResultsPage implements OnInit {
         this.isShowingSuggestions = true;
         this.suggestedPlaces = places.filter(p => p.type === this.category);
         
-        const lang = this.langService.currentLang;
-        const msg = lang === 'es' 
-          ? 'No encontré una coincidencia exacta, pero aquí tienes unas sugerencias geniales que te gustarán.' 
-          : 'I couldn\'t find an exact match, but here are some great suggestions you might like.';
-        
-        setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 1000);
+        setTimeout(() => {
+          const lang = this.langService.currentLang;
+          const msg = lang === 'es'
+            ? 'No encontré una coincidencia exacta, pero aquí tienes unas sugerencias geniales que te gustarán.'
+            : "I couldn't find an exact match, but here are some great suggestions you might like.";
+          this.pollyService.speak(msg, 'HAPPY');
+        }, 1000);
       }
     });
   }

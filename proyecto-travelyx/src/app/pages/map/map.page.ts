@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 import * as QRCode from 'qrcode';
 import { addIcons } from 'ionicons';
-import { closeOutline } from 'ionicons/icons';
+import { closeOutline, qrCodeOutline } from 'ionicons/icons';
 import { LanguageService } from '../../services/language.service';
 import { PollyService } from '../../services/polly.service';
 import { PlacesService, Place } from '../../services/places';
@@ -47,7 +47,7 @@ export class MapPage implements OnInit, OnDestroy {
     private pollyService: PollyService,
     private prefService: PreferencesService
   ) { 
-    addIcons({ closeOutline });
+    addIcons({ closeOutline, qrCodeOutline });
   }
 
   ngOnInit() {
@@ -62,6 +62,12 @@ export class MapPage implements OnInit, OnDestroy {
       this.initMap();
       this.listenToLanguage();
     }, 100);
+
+    // Polly explica brevemente qué puede hacer el usuario en el mapa
+    setTimeout(() => {
+      const msg = this.langService.translate('mapWelcome');
+      this.pollyService.speak(msg, 'HAPPY');
+    }, 1200);
   }
 
   private loadOfflineRoutes() {
@@ -250,17 +256,20 @@ export class MapPage implements OnInit, OnDestroy {
     this.showQrModal = false;
     this.selectedPlaceForQr = null;
 
+    this.drawRoute(place);
+    this.activePlaceId = place.id;
+
+    // Leer el idioma en el momento exacto de hablar, no antes
     const lang = this.langService.currentLang;
     const description = place.description[lang];
     const text = `${place.name}. ${description}`;
-    
-    this.drawRoute(place);
-    this.activePlaceId = place.id;
+
     await this.pollyService.speak(text, 'HAPPY');
 
-    // Ahora esperamos con precisión hasta que Polly termine de hablar la descripción
+    // Verificar que el lugar sigue activo Y que el idioma no cambió durante el await
     if (this.activePlaceId === place.id) {
       this.selectedPlaceForQr = place;
+      // translate() lee el idioma actual en este momento (puede haber cambiado)
       const promptText = this.langService.translate('qrPromptDesc');
       this.pollyService.speak(promptText, 'EXCITED', true);
     }

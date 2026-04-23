@@ -22,10 +22,22 @@ export class PollyService {
   public speechEnd$ = this.speechEndSubject.asObservable();
   
   private synth = window.speechSynthesis;
+  public isMuted: boolean = false;
+
+  // Guardamos el resolve pendiente para no dejar promesas colgadas
+  private pendingResolve: (() => void) | null = null;
+  // Watcher para el bug de Chrome que pausa indefinidamente en textos largos
+  private keepAliveInterval: any = null;
 
   constructor(private langService: LanguageService) {
     this.langService.currentLang$.subscribe(() => {
-      this.stop();
+      // Al cambiar idioma: cancelar síntesis y descartar promesas pendientes
+      // sin resolverlas, para cortar flujos async que tengan texto del idioma anterior.
+      this.stopKeepAlive();
+      this.synth.cancel();
+      this.pendingResolve = null; // Descartar sin resolver (corta el await)
+      this.speakSubject.next({ text: '', state: 'IDLE' } as any);
+      this.speechEndSubject.next();
     });
   }
 
@@ -41,8 +53,10 @@ export class PollyService {
 
   speak(text: string, state: 'IDLE' | 'TALK' | 'HAPPY' | 'EXCITED' = 'TALK', requireQrResponse: boolean = false): Promise<void> {
     return new Promise((resolve) => {
+      // Resolver la promesa anterior antes de comenzar una nueva
+      this.resolvePending();
+
       let finalText = text;
-      
       if (this.langService.currentLang === 'en') {
         finalText = text.replace(/\d+/g, (match) => {
           const num = parseInt(match, 10);
@@ -55,54 +69,115 @@ export class PollyService {
     });
   }
 
-  // Permite a PollyComponent emitir la respuesta del usuario
   sendQrResponse(wantsQr: boolean) {
     this.qrResponseSubject.next(wantsQr);
   }
 
   stop() {
+    this.stopKeepAlive();
     this.synth.cancel();
+    this.resolvePending();
     this.speakSubject.next({ text: '', state: 'IDLE' } as any);
     this.speechEndSubject.next();
   }
 
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    if (this.isMuted) {
+      this.stopKeepAlive();
+      this.synth.cancel();
+      this.resolvePending();
+    }
+  }
+
+  /** Resuelve y limpia la promesa pendiente si existe */
+  private resolvePending() {
+    if (this.pendingResolve) {
+      const cb = this.pendingResolve;
+      this.pendingResolve = null;
+      cb();
+    }
+  }
+
+  /** Keep-alive para el bug de Chrome que pausa frases largas */
+  private startKeepAlive() {
+    this.stopKeepAlive();
+    this.keepAliveInterval = setInterval(() => {
+      if (this.synth.paused) {
+        this.synth.resume();
+      }
+    }, 5000);
+  }
+
+  private stopKeepAlive() {
+    if (this.keepAliveInterval) {
+      clearInterval(this.keepAliveInterval);
+      this.keepAliveInterval = null;
+    }
+  }
+
   private speakSpeech(text: string, resolveCb: () => void) {
-    // Cancelar cualquier mensaje previo
+    this.stopKeepAlive();
     this.synth.cancel();
+
+    if (this.isMuted) {
+      // En modo mudo: simular tiempo proporcional al texto para mantener el flujo
+      const delayMs = Math.max(1500, (text.length / 15) * 1000);
+      let cancelled = false;
+      const t = setTimeout(() => {
+        if (!cancelled) {
+          this.speechEndSubject.next();
+          resolveCb();
+          this.pendingResolve = null;
+        }
+      }, delayMs);
+      this.pendingResolve = () => {
+        cancelled = true;
+        clearTimeout(t);
+        resolveCb();
+      };
+      return;
+    }
+
+    this.pendingResolve = resolveCb;
 
     const lang = this.langService.currentLang;
     const utterance = new SpeechSynthesisUtterance(text);
-    
-    utterance.onend = () => {
-        this.speechEndSubject.next();
-        resolveCb();
+
+    utterance.onstart = () => {
+      this.startKeepAlive();
     };
 
-    utterance.onerror = () => {
-        this.speechEndSubject.next();
-        resolveCb();
+    utterance.onend = () => {
+      this.stopKeepAlive();
+      this.speechEndSubject.next();
+      this.resolvePending();
     };
-    
-    // Configurar idioma y voz
+
+    utterance.onerror = (event) => {
+      // 'interrupted' y 'canceled' son errores normales causados por cancel(),
+      // no son fallas reales — los ignoramos para no disparar speechEnd$ de más.
+      if ((event as any).error === 'interrupted' || (event as any).error === 'canceled') {
+        return;
+      }
+      this.stopKeepAlive();
+      this.speechEndSubject.next();
+      this.resolvePending();
+    };
+
     utterance.lang = lang === 'es' ? 'es-MX' : 'en-US';
-    
-    // Intentar buscar una voz masculina premium según el idioma
+
     const voices = this.synth.getVoices();
-    
     const isEnglish = lang === 'en';
-    // Nombres de voces masculinas comunes para cada idioma (Edge, Windows, Google)
-    const maleNames = isEnglish 
+    const maleNames = isEnglish
       ? ['guy', 'ryan', 'david', 'mark', 'andrew', 'male', 'natural', 'online', 'google']
       : ['alvaro', 'jorge', 'pablo', 'male', 'natural', 'online', 'google'];
-    
-    // Filtro para encontrar voces masculinas de alta calidad estrictamente del idioma actual
-    let preferredVoice = voices.find(v => 
-      (v.lang.includes(utterance.lang)) && 
+
+    let preferredVoice = voices.find(v =>
+      v.lang.includes(utterance.lang) &&
       maleNames.some(name => v.name.toLowerCase().includes(name))
     );
 
-    // FALLBACK CRÍTICO: Si no encuentra una voz masculina premium en ese idioma, 
-    // debe seleccionar CUALQUIER voz en ese idioma para evitar que lea números en español.
     if (!preferredVoice) {
       preferredVoice = voices.find(v => v.lang.includes(utterance.lang));
     }
@@ -111,9 +186,9 @@ export class PollyService {
       utterance.voice = preferredVoice;
     }
 
-    utterance.pitch = 1.0; // Tono neutro para voz masculina
+    utterance.pitch = 1.0;
     utterance.rate = 1;
-    
+
     this.synth.speak(utterance);
   }
 }

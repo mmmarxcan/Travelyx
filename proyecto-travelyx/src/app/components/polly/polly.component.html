@@ -1,10 +1,17 @@
+<button #muteBtn class="polly-mute-btn" (click)="toggleMute($event)" [class.muted]="pollyService.isMuted">
+    <ion-icon [name]="pollyService.isMuted ? 'volume-mute' : 'musical-notes'"></ion-icon>
+</button>
+
 <div class="polly-container">
     <div class="speech-bubble" [class.hidden]="!showBubble">
         <p>
             {{ pollyText }}<span *ngIf="showCursor" class="cursor"></span>
         </p>
         <div class="qr-options" *ngIf="showQrOptions">
-            <button class="qr-btn-yes" (click)="answerQr(true)">{{ langService.translate('qrBtnYes') }}</button>
+            <button class="qr-btn-yes" (click)="answerQr(true)">
+                <ion-icon name="qr-code-outline"></ion-icon>
+                {{ langService.translate('qrBtnYes') }}
+            </button>
             <button class="qr-btn-no" (click)="answerQr(false)">{{ langService.translate('qrBtnNo') }}</button>
         </div>
         <div class="bubble-arrow"></div>

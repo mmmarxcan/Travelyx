@@ -47,6 +47,11 @@ export class LanguageService {
         '¡Mapa listo! Toca cualquier marcador para que te cuente sobre él.',
         '¡Navegación activada! Saca tus dotes de explorador en nuestro mapa.'
       ],
+      'mapWelcome': [
+        '¡Bienvenido al mapa! Toca cualquier marcador del mapa y te cuento todo sobre ese lugar. También puedo prepararte un QR para llevarte las indicaciones en tu celular.',
+        '¡Aquí puedes explorar Progreso! Selecciona un pin en el mapa y te trazo la ruta desde aquí. Cuando termines, toca el botón de regreso.',
+        '¡Este es tu mapa interactivo! Cada pin es un lugar especial. Tócalo y te doy todos los detalles. ¿Listo para explorar?'
+      ],
       'poke': [
         '¡Jeje, me haces cosquillas!',
         '¡Ey, esa es mi pancita!',
@@ -108,6 +113,11 @@ export class LanguageService {
         'Let us fly over the city! Opening the interactive map...',
         'Map is ready! Tap any marker so I can tell you about it.',
         'Navigation activated! Bring out your inner explorer on our map.'
+      ],
+      'mapWelcome': [
+        'Welcome to the map! Tap any pin and I will tell you all about that place. I can also prepare a QR code so you can take the directions on your phone.',
+        'Here you can explore Progreso! Select a pin on the map and I will trace the route from here. When you are done, tap the back button.',
+        'This is your interactive map! Each pin is a special place. Tap it and I will give you all the details. Ready to explore?'
       ],
       'poke': [
         'Hehe, that tickles!',

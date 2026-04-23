@@ -52,11 +52,13 @@ export class HotelFiltersPage {
     private prefService: PreferencesService,
     private navCtrl: NavController
   ) {
-    const lang = this.langService.currentLang;
-    const msg = lang === 'es'
-      ? '¡Ayúdame a encontrar el hotel perfecto para ti! Elige tus preferencias.'
-      : "Let me find the perfect hotel for you! Choose your preferences.";
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 600);
+    setTimeout(() => {
+      const lang = this.langService.currentLang;
+      const msg = lang === 'es'
+        ? '¡Ayúdame a encontrar el hotel perfecto para ti! Elige tus preferencias.'
+        : "Let me find the perfect hotel for you! Choose your preferences.";
+      this.pollyService.speak(msg, 'HAPPY');
+    }, 600);
   }
 
   ionViewWillLeave() {

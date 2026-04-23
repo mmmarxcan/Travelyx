@@ -50,11 +50,13 @@ export class TourismFiltersPage {
     private prefService: PreferencesService,
     private navCtrl: NavController
   ) {
-    const lang = this.langService.currentLang;
-    const msg = lang === 'es'
-      ? '¡Progreso tiene historia y belleza! Cuéntame qué tipo de experiencia buscas.'
-      : "Progreso has history and beauty! Tell me what kind of experience you're looking for.";
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 600);
+    setTimeout(() => {
+      const lang = this.langService.currentLang;
+      const msg = lang === 'es'
+        ? '¡Progreso tiene historia y belleza! Cuéntame qué tipo de experiencia buscas.'
+        : "Progreso has history and beauty! Tell me what kind of experience you're looking for.";
+      this.pollyService.speak(msg, 'HAPPY');
+    }, 600);
   }
 
   ionViewWillLeave() {

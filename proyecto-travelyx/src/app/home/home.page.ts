@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonContent } from '@ionic/angular/standalone';
 import { HeaderComponent } from '../components/header/header.component';
@@ -6,6 +6,7 @@ import { PollyComponent } from '../components/polly/polly.component';
 import { LanguageService } from '../services/language.service';
 import { PollyService } from '../services/polly.service';
 import { NavController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -14,8 +15,9 @@ import { NavController } from '@ionic/angular';
   standalone: true,
   imports: [IonContent, CommonModule, HeaderComponent, PollyComponent],
 })
-export class HomePage {
+export class HomePage implements OnDestroy {
   private idleTimer: any;
+  private langSub!: Subscription;
 
   constructor(
     public langService: LanguageService,
@@ -26,25 +28,37 @@ export class HomePage {
   ionViewDidEnter() {
     this.startRandomGreeting();
     this.resetIdleTimer();
+
+    // Al cambiar de idioma, reiniciar el timer para que el siguiente tip
+    // sea evaluado con el idioma activo en ese momento.
+    this.langSub = this.langService.currentLang$.subscribe(() => {
+      this.resetIdleTimer();
+    });
   }
 
   ionViewWillLeave() {
     this.clearTimers();
+    if (this.langSub) this.langSub.unsubscribe();
+  }
+
+  ngOnDestroy() {
+    this.clearTimers();
+    if (this.langSub) this.langSub.unsubscribe();
   }
 
   private startRandomGreeting() {
-    // Saludo inicial aleatorio tras un pequeño delay
     setTimeout(() => {
-        this.polly.speak(this.langService.translate('welcome'), 'TALK');
+      this.polly.speak(this.langService.translate('welcome'), 'TALK');
     }, 1500);
   }
 
   private resetIdleTimer() {
     this.clearTimers();
     this.idleTimer = setTimeout(() => {
+      // translate() se evalúa aquí: usa el idioma activo en este momento exacto
       this.polly.speak(this.langService.translate('tip'), 'HAPPY');
-      this.resetIdleTimer(); // Reiniciar para el siguiente tip
-    }, 25000); // 25 segundos de inactividad
+      this.resetIdleTimer();
+    }, 25000);
   }
 
   private clearTimers() {
@@ -52,10 +66,10 @@ export class HomePage {
   }
 
   actionClick(id: string) {
-    this.resetIdleTimer(); // El usuario interactuó
-    this.polly.stop(); // Detener cualquier diálogo previo
+    this.resetIdleTimer();
+    this.polly.stop();
     this.polly.speak(this.langService.translate(id), 'EXCITED');
-    
+
     if (id === 'hotels') {
       setTimeout(() => this.navCtrl.navigateForward('/hotel-filters'), 1500);
     } else if (id === 'restaurants') {

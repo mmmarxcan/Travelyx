@@ -7,13 +7,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 .polly-mascot {
     width: clamp(200px, 45vw, 380px);
     height: auto;
-    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.3));
     transition: transform 0.2s ease, filter 0.2s ease;
     cursor: pointer;
     pointer-events: auto;
@@ -37,14 +37,14 @@
     font-size: clamp(1.1rem, 1.6vw, 1.4rem);
     font-weight: 600;
     color: var(--primary);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    margin-bottom: 20px; 
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
     opacity: 1;
     transform-origin: bottom center;
     transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: auto;
     text-align: center;
-    
+
     p {
         margin: 0;
     }
@@ -79,8 +79,15 @@
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
 
 .idle-anim {
@@ -88,9 +95,17 @@
 }
 
 @keyframes float {
-    0% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-15px) scale(1.02); }
-    100% { transform: translateY(0px) scale(1); }
+    0% {
+        transform: translateY(0px) scale(1);
+    }
+
+    50% {
+        transform: translateY(-15px) scale(1.02);
+    }
+
+    100% {
+        transform: translateY(0px) scale(1);
+    }
 }
 
 .talk-anim {
@@ -98,8 +113,13 @@
 }
 
 @keyframes bounce {
-    0% { transform: translateY(0) scaleY(1); }
-    100% { transform: translateY(-30px) scaleY(1.05); }
+    0% {
+        transform: translateY(0) scaleY(1);
+    }
+
+    100% {
+        transform: translateY(-30px) scaleY(1.05);
+    }
 }
 
 .success-anim {
@@ -107,9 +127,17 @@
 }
 
 @keyframes jump {
-    0% { transform: scale(1) translateY(0); }
-    50% { transform: scale(1.1) translateY(-60px); }
-    100% { transform: scale(1) translateY(0); }
+    0% {
+        transform: scale(1) translateY(0);
+    }
+
+    50% {
+        transform: scale(1.1) translateY(-60px);
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+    }
 }
 
 /* Interacciones QR dentro de la burbuja */
@@ -133,15 +161,105 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             box-shadow: 0 4px 10px rgba(0, 119, 182, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
 
-            &:active { transform: scale(0.95); }
+            ion-icon {
+                font-size: 1.2rem;
+                flex-shrink: 0;
+            }
+
+            &:active {
+                transform: scale(0.95);
+            }
         }
 
         &.qr-btn-no {
-            background: rgba(0,0,0,0.05);
+            background: rgba(0, 0, 0, 0.05);
             color: #555;
 
-            &:active { background: rgba(0,0,0,0.1); }
+            &:active {
+                background: rgba(0, 0, 0, 0.1);
+            }
         }
+    }
+}
+
+.polly-mute-btn {
+    position: fixed;
+    /*
+     * Usar clamp() garantiza que el botón siempre esté dentro de la pantalla.
+     * El botón mide 60x60px.
+     * Fórmula: clamp(MÍNIMO, VALOR_DESEADO, MÁXIMO)
+     * - MÍNIMO: 10px del borde (siempre visible)
+     * - VALOR_DESEADO: porcentaje de la pantalla (posición relativa)
+     * - MÁXIMO: 100vw/vh - 70px (siempre visible del otro lado)
+     */
+    left: calc(50% - 200px);
+    /* Centrado horizontal (30px = mitad del botón de 60px) */
+    top: clamp(-250px, 11vh, -250px);
+    /* Justo debajo del header */
+    bottom: auto;
+    right: auto;
+    margin: 0;
+    appearance: none;
+    touch-action: none;
+    border: none;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 119, 182, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: white;
+    z-index: 20;
+    pointer-events: auto;
+
+    /* Efecto llamativo de pulso */
+    animation: pulse-glow 2s infinite;
+
+    ion-icon {
+        font-size: 2rem;
+    }
+
+    &:hover {
+        transform: scale(1.15) rotate(10deg);
+        box-shadow: 0 6px 20px rgba(0, 119, 182, 0.6);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &.muted {
+        background: linear-gradient(135deg, #ff4b4b 0%, #d32f2f 100%);
+        box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+        animation: none;
+        /* Se detiene el pulso si está muteado */
+
+        &:hover {
+            transform: scale(1.15) rotate(-10deg);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.6);
+        }
+    }
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 119, 182, 0.6);
+    }
+
+    70% {
+        box-shadow: 0 0 0 20px rgba(0, 119, 182, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 119, 182, 0);
     }
 }

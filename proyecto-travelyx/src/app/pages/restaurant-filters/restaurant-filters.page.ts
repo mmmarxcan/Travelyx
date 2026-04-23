@@ -52,11 +52,13 @@ export class RestaurantFiltersPage {
     private prefService: PreferencesService,
     private navCtrl: NavController
   ) {
-    const lang = this.langService.currentLang;
-    const msg = lang === 'es'
-      ? '¡Tenemos los mejores sabores del malecón! Dime qué te apetece hoy.'
-      : "We have the best flavors on the boardwalk! Tell me what you feel like today.";
-    setTimeout(() => this.pollyService.speak(msg, 'HAPPY'), 600);
+    setTimeout(() => {
+      const lang = this.langService.currentLang;
+      const msg = lang === 'es'
+        ? '¡Tenemos los mejores sabores del malecón! Dime qué te apetece hoy.'
+        : "We have the best flavors on the boardwalk! Tell me what you feel like today.";
+      this.pollyService.speak(msg, 'HAPPY');
+    }, 600);
   }
 
   ionViewWillLeave() {
