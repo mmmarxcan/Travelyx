@@ -262,7 +262,7 @@ export class MapPage implements OnInit, OnDestroy {
     // Leer el idioma en el momento exacto de hablar, no antes
     const lang = this.langService.currentLang;
     const description = place.description[lang];
-    const text = `${place.name}. ${description}`;
+    let text = `${place.name}. ${description}`;
 
     await this.pollyService.speak(text, 'HAPPY');
 

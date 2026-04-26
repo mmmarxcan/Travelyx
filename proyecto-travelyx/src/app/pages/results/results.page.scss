@@ -129,17 +129,18 @@
 }
 
 .result-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+    backdrop-filter: blur(35px);
+    -webkit-backdrop-filter: blur(35px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 40px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    height: 480px; /* Altura fija para uniformidad */
+    box-shadow: 0 20px 45px rgba(0,0,0,0.3), inset 0 0 30px rgba(255,255,255,0.05);
 
     &:hover {
         transform: translateY(-12px) scale(1.02);
@@ -166,28 +167,86 @@
     height: 180px;
     overflow: hidden;
 
+    .image-carousel {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .carousel-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        height: 100%;
+        width: 100%;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+        &::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
+    }
+
     .place-img {
+        flex: 0 0 100%;
         width: 100%;
         height: 100%;
         object-fit: cover;
+        scroll-snap-align: center;
         transition: transform 0.6s ease;
+    }
+
+    .carousel-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%);
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .carousel-indicators {
+        position: absolute;
+        bottom: 12px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        z-index: 5;
+        padding: 0 10px;
+    }
+
+    .indicator-dot {
+        width: 6px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &.active {
+            width: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
     }
 
     .card-tag {
         position: absolute;
         top: 15px;
         right: 15px;
-        background: rgba(0,0,0,0.4);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        width: 40px;
-        height: 40px;
+        background: rgba(0,0,0,0.3);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
-        border: 1px solid rgba(255,255,255,0.3);
+        font-size: 1.1rem;
+        border: 1px solid rgba(255,255,255,0.2);
+        z-index: 5;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 }
 
@@ -229,11 +288,16 @@
 }
 
 .place-description {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     line-height: 1.5;
     opacity: 0.8;
-    margin-bottom: 20px;
+    margin: 15px 0;
     flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
 }
 
 .card-footer {
@@ -258,14 +322,16 @@
         letter-spacing: 2px;
     }
 
-    .cuisine-badge {
+    .cuisine-badge, .price-badge {
         font-size: 0.75rem;
         font-weight: 800;
         text-transform: uppercase;
         background: rgba(255,255,255,0.1);
-        padding: 4px 10px;
-        border-radius: 8px;
+        backdrop-filter: blur(5px);
+        padding: 6px 12px;
+        border-radius: 10px;
         letter-spacing: 1px;
+        border: 1px solid rgba(255,255,255,0.1);
     }
 }
 
@@ -504,6 +570,98 @@
 }
 
 /* Kiosk Specific Adjustments */
+/* ── PRICING MODAL STYLES ── */
+.pricing-modal-content {
+    --background: transparent;
+    --padding-top: 20px;
+    --padding-bottom: 40px;
+}
+
+.pricing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+}
+
+.price-item-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 18px 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+
+    &:active {
+        transform: scale(0.97);
+        background: rgba(255, 255, 255, 0.15);
+    }
+}
+
+.price-item-icon {
+    font-size: 1.8rem;
+    background: rgba(255, 183, 3, 0.2);
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 183, 3, 0.3);
+}
+
+.price-item-info {
+    flex: 1;
+
+    h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.3px;
+    }
+
+    p {
+        margin: 6px 0 0;
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.5);
+        font-weight: 600;
+    }
+}
+
+.price-item-value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #10b981;
+    text-shadow: 0 0 15px rgba(16,185,129,0.4);
+    background: rgba(16,185,129,0.1);
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(16,185,129,0.2);
+}
+
+.modal-description-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    p {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        text-align: justify;
+    }
+}
+
 .polly-container {
     position: fixed;
     bottom: 20px;

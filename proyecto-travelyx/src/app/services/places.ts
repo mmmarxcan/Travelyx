@@ -22,9 +22,13 @@ export interface Place {
   delivery?: boolean;
   requires_reservation?: boolean;
   price_adult?: number;
+  price_child?: number;
+  price_local?: number;
   estimated_duration?: string;
   image?: string;
+  images?: string[];
   dishes?: Dish[];
+  custom_prices?: any[];
 }
 
 export interface Dish {
@@ -57,7 +61,9 @@ export class PlacesService {
     // Buscar descripciones y primera imagen
     const descEs = p.translations?.find((t: any) => t.language_code === 'es')?.description || p.description || '';
     const descEn = p.translations?.find((t: any) => t.language_code === 'en')?.description || '';
-    const mainImage = p.images && p.images.length > 0 ? p.images[0].image_url : null;
+    
+    const imageList = p.images && p.images.length > 0 ? p.images.map((i: any) => i.image_url) : [];
+    const mainImage = imageList.length > 0 ? imageList[0] : null;
 
     return {
       id: p.id.toString(),
@@ -78,9 +84,13 @@ export class PlacesService {
       delivery: p.delivery,
       requires_reservation: p.requires_reservation,
       price_adult: p.price_adult,
+      price_child: p.price_child,
+      price_local: p.price_local,
       estimated_duration: p.estimated_duration,
       image: mainImage,
-      dishes: p.dishes
+      images: imageList,
+      dishes: p.dishes,
+      custom_prices: p.custom_prices ? JSON.parse(p.custom_prices) : []
     };
   }
 

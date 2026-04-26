@@ -1,7 +1,35 @@
 .owner-places { display: flex; flex-direction: column; gap: 1.5rem; height: 100%; }
 
 /* ── Pantalla Principal ───────────────── */
-.page-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-radius: 16px; }
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-select {
+  width: auto;
+  min-width: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+}
+
+.filter-select option {
+  background: #1a1a1a;
+  color: #fff;
+}
 .places-table-wrap { padding: 1.5rem; border-radius: 16px; overflow-x: auto; }
 .places-table { width: 100%; border-collapse: collapse; }
 .places-table th, .places-table td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -361,4 +389,62 @@
   outline: none; 
   font-size: 1.1rem;
   font-weight: 700;
+}
+
+/* ── PRECIOS PERSONALIZADOS ── */
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.custom-price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.custom-price-row {
+  display: grid;
+  grid-template-columns: 1fr 150px 40px;
+  gap: 15px;
+  align-items: center;
+  animation: fadeInDown 0.3s ease;
+}
+
+.btn-remove-price {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.btn-remove-price:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.empty-custom-prices {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255,255,255,0.02);
+  border-radius: 16px;
+  border: 1px dashed rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.3);
+  font-size: 0.85rem;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

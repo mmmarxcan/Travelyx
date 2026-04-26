@@ -38,9 +38,10 @@ export class OwnerPlaces implements OnInit {
   isSaving = false;
   successMessage = '';
   
+  filterCategoryId: number | null = null;
+  editingPlaceId: number | null = null;
   activeTab: string = 'identificacion';
 
-  // Horarios estructurados
   daysOfWeek = [
     { name: 'Lunes',     slug: 'lun', open: '08:00', close: '20:00', closed: false },
     { name: 'Martes',    slug: 'mar', open: '08:00', close: '20:00', closed: false },
@@ -51,7 +52,6 @@ export class OwnerPlaces implements OnInit {
     { name: 'Domingo',   slug: 'dom', open: '09:00', close: '18:00', closed: false },
   ];
 
-  // Formulario Maestro
   form: any = {
     name:                '',
     category_id:         null,
@@ -65,14 +65,10 @@ export class OwnerPlaces implements OnInit {
     description_es:      '',
     description_en:      '',
     amenity_ids:         [],
-    
-    // Hotel
     stars:               0,
     accommodation_type:  '',
     house_rules:         '',
     cancellation_policy: '',
-
-    // Attraction
     slogan:              '',
     opening_hours:       '',
     best_time:           '',
@@ -80,8 +76,6 @@ export class OwnerPlaces implements OnInit {
     price_child:         0,
     price_local:         0,
     estimated_duration:  '',
-
-    // Restaurant
     price_range:         1,
     featured_dish:       '',
     menu_url:            '',
@@ -89,7 +83,8 @@ export class OwnerPlaces implements OnInit {
     capacity:            0,
     stay_time:           '',
     delivery:            false,
-    pickup:              false
+    pickup:              false,
+    custom_prices:       []
   };
 
   galleryPreviews: string[] = [];
@@ -102,6 +97,11 @@ export class OwnerPlaces implements OnInit {
     private placesService: PlacesOwnerService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get filteredPlaces() {
+    if (!this.filterCategoryId) return this.places;
+    return this.places.filter(p => Number(p.category_id) === Number(this.filterCategoryId));
+  }
 
   ngOnInit(): void {
     const uid = this.auth.getUserId();
@@ -123,17 +123,13 @@ export class OwnerPlaces implements OnInit {
   }
 
   loadAmenities(catId?: number): void {
-    console.log('🔄 Cargando amenidades para cat:', catId);
     this.placesService.getAmenities(catId).subscribe({
       next: (data) => {
-        console.log('✅ Amenidades recibidas:', data.length);
         this.amenities = data;
         this.groupAmenities();
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('❌ Error cargando amenidades:', err);
-      }
+      error: (err) => console.error('Error cargando amenidades:', err)
     });
   }
 
@@ -143,13 +139,11 @@ export class OwnerPlaces implements OnInit {
       this.groupedAmenities = [];
       return;
     }
-
     this.amenities.forEach(a => {
       const g = a.group || 'Otros';
       if (!groups[g]) groups[g] = [];
       groups[g].push(a);
     });
-
     this.groupedAmenities = Object.keys(groups).map(key => ({
       group: key,
       items: groups[key]
@@ -159,8 +153,98 @@ export class OwnerPlaces implements OnInit {
 
   openModal(): void {
     this.resetForm();
+    this.editingPlaceId = null;
     this.isModalOpen = true;
     this.showSelectionStep = true;
+    this.cdr.detectChanges();
+  }
+
+  addCustomPrice() {
+    this.form.custom_prices.push({ label: '', price: 0 });
+  }
+
+  removeCustomPrice(index: number) {
+    this.form.custom_prices.splice(index, 1);
+  }
+
+  editPlace(p: any): void {
+    this.resetForm();
+    this.editingPlaceId = p.id;
+    this.form = {
+      ...this.form,
+      owner_id: p.owner_id,
+      category_id: p.category_id,
+      name: p.name,
+      phone: p.phone,
+      whatsapp: p.whatsapp,
+      website_url: p.website_url,
+      social_url: p.social_url,
+      address: p.address,
+      lat: p.lat,
+      lng: p.lng,
+      stars: p.stars,
+      accommodation_type: p.accommodation_type,
+      house_rules: p.house_rules,
+      cancellation_policy: p.cancellation_policy,
+      slogan: p.slogan,
+      opening_hours: p.opening_hours,
+      best_time: p.best_time,
+      price_adult: p.price_adult,
+      price_child: p.price_child,
+      price_local: p.price_local,
+      estimated_duration: p.estimated_duration,
+      price_range: p.price_range,
+      featured_dish: p.featured_dish,
+      menu_url: p.menu_url,
+      capacity: p.capacity,
+      stay_time: p.stay_time,
+      delivery: p.delivery,
+      pickup: p.pickup,
+      requires_reservation: p.requires_reservation,
+      cuisine: p.cuisine,
+      custom_prices: p.custom_prices ? JSON.parse(p.custom_prices) : []
+    };
+
+    if (p.translations) {
+      const es = p.translations.find((t: any) => t.language_code === 'es');
+      const en = p.translations.find((t: any) => t.language_code === 'en');
+      if (es) this.form.description_es = es.description;
+      if (en) this.form.description_en = en.description;
+    }
+
+    if (p.amenities) {
+      this.form.amenity_ids = p.amenities.map((a: any) => a.amenity_id);
+    }
+
+    // Poblar imágenes existentes
+    if (p.images && Array.isArray(p.images)) {
+      this.galleryPreviews = p.images.map((img: any) => img.image_url);
+    }
+
+    if (p.opening_hours) {
+      try {
+        const lines = p.opening_hours.split('\n');
+        lines.forEach((line: string) => {
+          const [dayName, hours] = line.split(': ');
+          const day = this.daysOfWeek.find(d => d.name === dayName);
+          if (day) {
+            if (hours === 'Cerrado') {
+              day.closed = true;
+            } else {
+              const [open, close] = hours.split(' - ');
+              day.open = open;
+              day.close = close;
+              day.closed = false;
+            }
+          }
+        });
+      } catch (e) {}
+    }
+
+    this.showSelectionStep = false;
+    this.isModalOpen = true;
+    this.activeTab = 'identificacion';
+    this.loadAmenities(p.category_id);
     this.cdr.detectChanges();
   }
 
@@ -168,10 +252,7 @@ export class OwnerPlaces implements OnInit {
     this.form.category_id = catId;
     this.showSelectionStep = false;
     this.activeTab = 'identificacion';
-    
-    // Cargar amenidades específicas de esta categoría
     this.loadAmenities(catId);
-    
     this.cdr.detectChanges();
   }
 
@@ -220,10 +301,16 @@ export class OwnerPlaces implements OnInit {
       slogan: '', opening_hours: '', best_time: '',
       price_adult: 0, price_child: 0, price_local: 0, estimated_duration: '',
       price_range: 1, featured_dish: '', menu_url: '', requires_reservation: false,
-      capacity: 0, stay_time: '', delivery: false, pickup: false
+      capacity: 0, stay_time: '', delivery: false, pickup: false,
+      custom_prices: []
     };
     this.galleryPreviews = [];
     this.successMessage = '';
+    this.daysOfWeek.forEach(d => {
+      d.closed = false;
+      d.open = '08:00';
+      d.close = '20:00';
+    });
   }
 
   initMap(): void {
@@ -258,18 +345,27 @@ export class OwnerPlaces implements OnInit {
   savePlace(): void {
     this.isSaving = true;
     this.form.opening_hours = this.formatOpeningHours();
+    this.form.owner_id = this.ownerId;
 
-    this.placesService.createPlace(this.form).subscribe({
+    const observer = {
       next: () => {
         this.isSaving = false;
-        this.successMessage = '¡Negocio registrado con éxito! Pendiente de aprobación.';
+        this.successMessage = this.editingPlaceId 
+          ? '¡Cambios guardados con éxito!' 
+          : '¡Negocio registrado con éxito! Pendiente de aprobación.';
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSaving = false;
         alert('Error: ' + (err.error?.error || 'No se pudo guardar'));
       }
-    });
+    };
+
+    if (this.editingPlaceId) {
+      this.placesService.updatePlace(this.editingPlaceId, { ...this.form, images: this.galleryPreviews }).subscribe(observer);
+    } else {
+      this.placesService.createPlace({ ...this.form, images: this.galleryPreviews }).subscribe(observer);
+    }
   }
 
   getCategoryLabel(id: number): string {

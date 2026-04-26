@@ -80,6 +80,7 @@ model Place {
   pickup             Boolean  @default(false)
   requires_reservation Boolean @default(false)
   cuisine             String?  // Ej: "seafood", "italian", "mexican"
+  custom_prices       String?  @db.Text
 
   owner        User               @relation(fields: [owner_id], references: [id])
   category     Category           @relation(fields: [category_id], references: [id])

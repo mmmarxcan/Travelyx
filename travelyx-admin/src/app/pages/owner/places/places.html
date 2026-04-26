@@ -6,11 +6,17 @@
       <h2>Mis Negocios</h2>
       <p class="text-muted">Gestiona tus locales que aparecen en el kiosko Travelyx.</p>
     </div>
-    <button class="btn btn-primary shadow-lg" (click)="openModal()">+ Registrar Negocio</button>
+    <div class="header-actions">
+      <select class="input-field filter-select" [(ngModel)]="filterCategoryId">
+        <option [ngValue]="null">📂 Todas las categorías</option>
+        <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.icon }} {{ cat.label }}</option>
+      </select>
+      <button class="btn btn-primary shadow-lg" (click)="openModal()">+ Registrar Negocio</button>
+    </div>
   </div>
 
   <!-- Table -->
-  <div class="places-table-wrap glass-panel" *ngIf="places.length > 0">
+  <div class="places-table-wrap glass-panel" *ngIf="filteredPlaces.length > 0">
     <table class="places-table">
       <thead>
         <tr>
@@ -18,10 +24,11 @@
           <th>Categoría</th>
           <th>Teléfono</th>
           <th>Estado</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of places">
+        <tr *ngFor="let p of filteredPlaces">
           <td>
             <div class="place-name-cell">
               <div class="place-avatar">{{ p.name.charAt(0).toUpperCase() }}</div>
@@ -37,15 +44,19 @@
               {{ (p.status === 'APPROVED') ? '✅ Aprobado' : (p.status === 'REJECTED' ? '❌ Rechazado' : '⏳ Pendiente') }}
             </span>
           </td>
+          <td>
+            <button class="btn btn-sm btn-outline" (click)="editPlace(p)">📝 Editar</button>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="empty-state glass-panel" *ngIf="places.length === 0">
+  <div class="empty-state glass-panel" *ngIf="filteredPlaces.length === 0">
     <div class="empty-icon">🏖️</div>
-    <h3>¿Aún no tienes negocios?</h3>
-    <button class="btn btn-primary" (click)="openModal()">Registrar mi primer local</button>
+    <h3>No se encontraron negocios</h3>
+    <p *ngIf="filterCategoryId">Prueba con otra categoría o limpia el filtro.</p>
+    <button class="btn btn-primary" (click)="openModal()">Registrar nuevo local</button>
   </div>
 
 </div>
@@ -100,15 +111,15 @@
 
           <div class="sidebar-footer">
             <button class="btn btn-block btn-primary" (click)="savePlace()" [disabled]="isSaving || !form.name">
-              {{ isSaving ? 'Guardando...' : 'Guardar y Enviar' }}
+              {{ isSaving ? 'Guardando...' : (editingPlaceId ? 'Actualizar Datos' : 'Guardar y Enviar') }}
             </button>
-            <button class="btn btn-block btn-outline" (click)="showSelectionStep = true">Atrás</button>
+            <button class="btn btn-block btn-outline" (click)="showSelectionStep = true" *ngIf="!editingPlaceId">Atrás</button>
           </div>
         </aside>
 
         <main class="modal-content-area">
           <div class="modal-body-header">
-            <h3>{{ activeTab | uppercase }}</h3>
+            <h3>{{ (editingPlaceId ? 'EDITAR: ' : '') + (activeTab | uppercase) }}</h3>
             <button class="close-btn" (click)="closeModal()">×</button>
           </div>
 
@@ -199,6 +210,30 @@
             <!-- ── TAB: OPERACIÓN ──────────────────────── -->
             <div class="tab-pane" *ngIf="activeTab === 'operacion'">
               
+              <!-- Precios Personalizados (Flexibles) -->
+              <div class="prices-section custom-prices-box" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                <div class="section-header-row">
+                  <h4>Precios Personalizados</h4>
+                  <button class="btn btn-sm btn-primary" (click)="addCustomPrice()">+ Añadir Precio</button>
+                </div>
+                <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.8rem;">Ej: "Habitación Master: $1500" o "Tour VIP: $500"</p>
+                
+                <div class="custom-price-list">
+                  <div class="custom-price-row" *ngFor="let cp of form.custom_prices; let i = index">
+                    <input type="text" class="input-field" [(ngModel)]="cp.label" placeholder="Descripción (Ej: Habitación Doble)">
+                    <div class="price-input-wrap">
+                      <span>$</span>
+                      <input type="number" [(ngModel)]="cp.price" placeholder="0">
+                    </div>
+                    <button class="btn-remove-price" (click)="removeCustomPrice(i)">×</button>
+                  </div>
+                </div>
+
+                <div class="empty-custom-prices" *ngIf="form.custom_prices.length === 0">
+                  <p>No has añadido precios personalizados todavía.</p>
+                </div>
+              </div>
+
               <!-- Horarios Compartidos -->
               <div class="form-group">
                 <label>Horarios por Día (Selecciona apertura y cierre)</label>

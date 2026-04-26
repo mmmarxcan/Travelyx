@@ -12,6 +12,7 @@ router.get('/', async (req, res) => {
         category: true,
         translations: true,
         owner: { select: { id: true, email: true, full_name: true } },
+        images: true,
         _count: { select: { images: true } },
         dishes: true
       },
@@ -45,6 +46,13 @@ router.get('/mine', async (req, res) => {
       where: { owner_id: Number(owner_id) },
       include: {
         category: true,
+        translations: true,
+        amenities: {
+          include: {
+            amenity: true
+          }
+        },
+        images: true,
         _count: { select: { images: true } }
       },
       orderBy: { id: 'desc' }
@@ -128,7 +136,9 @@ router.post('/', async (req, res) => {
       delivery,
       pickup,
       requires_reservation,
-      cuisine
+      cuisine,
+      images,
+      custom_prices
     } = req.body;
 
     if (!owner_id || !category_id || !name || lat === undefined || lng === undefined) {
@@ -168,7 +178,8 @@ router.post('/', async (req, res) => {
         delivery: !!delivery,
         pickup: !!pickup,
         requires_reservation: !!requires_reservation,
-        cuisine: cuisine || null
+        cuisine: cuisine || null,
+        custom_prices: custom_prices ? (typeof custom_prices === 'string' ? custom_prices : JSON.stringify(custom_prices)) : null
       }
     });
 
@@ -195,6 +206,18 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Asociar imágenes si vienen
+    if (images && Array.isArray(images)) {
+      const imagesData = images.map((img: string, idx: number) => ({
+        place_id: newPlace.id,
+        image_url: img,
+        sort_order: idx
+      }));
+      await prisma.placeImage.createMany({
+        data: imagesData
+      });
+    }
+
     res.status(201).json({ message: 'Negocio registrado. Pendiente de aprobación.', place: newPlace });
   } catch (error) {
     console.error('Error al crear lugar:', error);
@@ -207,11 +230,13 @@ router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { 
-      name, lat, lng, phone, whatsapp, website_url, social_url, address, description, 
+      name, lat, lng, phone, whatsapp, website_url, social_url, address, 
+      description_es, description_en, amenity_ids,
       is_active, status, stars, accommodation_type, house_rules, cancellation_policy,
       slogan, opening_hours, best_time, price_adult, price_child, price_local,
       estimated_duration, price_range, featured_dish, menu_url, capacity, stay_time,
-      delivery, pickup, requires_reservation, cuisine
+      delivery, pickup, requires_reservation, cuisine,
+      images, custom_prices
     } = req.body;
 
     const data: any = {};
@@ -223,7 +248,6 @@ router.patch('/:id', async (req, res) => {
     if (website_url !== undefined) data.website_url = website_url;
     if (social_url !== undefined) data.social_url = social_url;
     if (address !== undefined) data.address = address;
-    if (description !== undefined) data.description = description;
     if (is_active !== undefined) data.is_active = is_active;
     if (status !== undefined) data.status = status;
     
@@ -248,11 +272,51 @@ router.patch('/:id', async (req, res) => {
     if (pickup !== undefined) data.pickup = pickup;
     if (requires_reservation !== undefined) data.requires_reservation = requires_reservation;
     if (cuisine !== undefined) data.cuisine = cuisine;
+    if (custom_prices !== undefined) {
+      data.custom_prices = typeof custom_prices === 'string' ? custom_prices : JSON.stringify(custom_prices);
+    }
 
     const updatedPlace = await prisma.place.update({
       where: { id: Number(id) },
       data
     });
+
+    // Actualizar Traducciones
+    if (description_es !== undefined) {
+      await prisma.placeTranslation.upsert({
+        where: { place_id_language_code: { place_id: Number(id), language_code: 'es' } },
+        update: { description: description_es },
+        create: { place_id: Number(id), language_code: 'es', description: description_es }
+      });
+    }
+    if (description_en !== undefined) {
+      await prisma.placeTranslation.upsert({
+        where: { place_id_language_code: { place_id: Number(id), language_code: 'en' } },
+        update: { description: description_en },
+        create: { place_id: Number(id), language_code: 'en', description: description_en }
+      });
+    }
+
+    // Actualizar Amenidades (Sincronización)
+    if (amenity_ids && Array.isArray(amenity_ids)) {
+      await prisma.placeAmenity.deleteMany({ where: { place_id: Number(id) } });
+      const amenitiesData = amenity_ids.map((aId: number) => ({
+        place_id: Number(id),
+        amenity_id: Number(aId)
+      }));
+      await prisma.placeAmenity.createMany({ data: amenitiesData });
+    }
+
+    // Actualizar Imágenes (Sincronización)
+    if (images && Array.isArray(images)) {
+      await prisma.placeImage.deleteMany({ where: { place_id: Number(id) } });
+      const imagesData = images.map((img: string, idx: number) => ({
+        place_id: Number(id),
+        image_url: img,
+        sort_order: idx
+      }));
+      await prisma.placeImage.createMany({ data: imagesData });
+    }
 
     res.json({ message: 'Negocio actualizado', place: updatedPlace });
   } catch (error) {

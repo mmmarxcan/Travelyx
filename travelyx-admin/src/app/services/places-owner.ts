@@ -21,6 +21,10 @@ export class PlacesOwnerService {
   }
 
   /** Actualizar datos de un negocio propio */
+  updatePlace(id: number, data: any): Observable<any> {
+    return this.http.patch<any>(`${this.api}/${id}`, data);
+  }
+
   /** Obtener servicios (amenities) filtrados por categoría */
   getAmenities(categoryId?: number): Observable<any[]> {
     const url = categoryId 

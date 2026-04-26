@@ -26,7 +26,21 @@ export class ResultsPage implements OnInit {
   category: string = 'hotel';
   isShowingSuggestions: boolean = false;
   isMenuOpen: boolean = false;
+  isPriceModalOpen: boolean = false;
   selectedPlace: Place | null = null;
+  imageIndices: { [placeId: string]: number } = {};
+
+  openMenu(event: Event, place: Place) {
+    event.stopPropagation();
+    this.selectedPlace = place;
+    this.isMenuOpen = true;
+  }
+
+  openPrices(event: Event, place: Place) {
+    event.stopPropagation();
+    this.selectedPlace = place;
+    this.isPriceModalOpen = true;
+  }
 
   constructor(
     public langService: LanguageService,
@@ -37,6 +51,12 @@ export class ResultsPage implements OnInit {
     private route: ActivatedRoute
   ) {
     addIcons({ closeOutline });
+  }
+
+  onImageScroll(event: any, placeId: string) {
+    const scrollLeft = event.target.scrollLeft;
+    const width = event.target.offsetWidth;
+    this.imageIndices[placeId] = Math.round(scrollLeft / width);
   }
 
   ngOnInit() {
@@ -58,6 +78,7 @@ export class ResultsPage implements OnInit {
       
       if (this.filteredPlaces.length === 0) {
         this.isShowingSuggestions = true;
+        // Filtrar sugerencias para que sean de la misma categoría que se buscó
         this.suggestedPlaces = places.filter(p => p.type === this.category);
         
         setTimeout(() => {
@@ -109,11 +130,6 @@ export class ResultsPage implements OnInit {
     return p;
   }
 
-  openMenu(event: Event, place: Place) {
-    event.stopPropagation();
-    this.selectedPlace = place;
-    this.isMenuOpen = true;
-  }
 
   selectPlace(place: Place) {
     this.selectedPlace = place;
