@@ -138,19 +138,18 @@
         </div>
 
         <div class="dishes-grid">
-          <div class="dish-card" *ngFor="let dish of selectedPlace?.dishes">
+          <div class="dish-card" *ngFor="let dish of selectedPlace?.custom_prices">
             <div class="dish-image-wrapper">
-              <img [src]="dish.image_url || 'assets/placeholder-dish.png'" class="dish-img">
+              <img [src]="dish.image_url || 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800'" class="dish-img">
               <div class="dish-price">${{ dish.price }}</div>
             </div>
             <div class="dish-info">
-              <h3>{{ langService.currentLang === 'es' ? dish.name_es : (dish.name_en || dish.name_es) }}</h3>
-              <p>{{ langService.currentLang === 'es' ? dish.description_es : (dish.description_en || dish.description_es) }}</p>
+              <h3>{{ dish.label }}</h3>
             </div>
           </div>
         </div>
         
-        <div *ngIf="!selectedPlace?.dishes || selectedPlace?.dishes?.length === 0" class="no-dishes">
+        <div *ngIf="!selectedPlace?.custom_prices || selectedPlace?.custom_prices?.length === 0" class="no-dishes">
           <p>{{ langService.currentLang === 'es' ? 'No hay platillos registrados aún.' : 'No dishes registered yet.' }}</p>
         </div>
         

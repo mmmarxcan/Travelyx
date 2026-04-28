@@ -160,11 +160,52 @@ export class OwnerPlaces implements OnInit {
   }
 
   addCustomPrice() {
-    this.form.custom_prices.push({ label: '', price: 0 });
+    this.form.custom_prices.push({ label: '', price: 0, image_url: '' });
   }
 
   removeCustomPrice(index: number) {
     this.form.custom_prices.splice(index, 1);
+  }
+
+  onCustomPriceImageSelected(event: any, index: number): void {
+    const files = event.target.files;
+    if (files && files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        if (!this.form.custom_prices[index]) return;
+        this.form.custom_prices[index].image_url = e.target.result;
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(files[0]);
+    }
+  }
+
+  removeCustomPriceImage(index: number): void {
+    if (this.form.custom_prices[index]) {
+      this.form.custom_prices[index].image_url = '';
+      this.cdr.detectChanges();
+    }
+  }
+
+  getCustomPricesTitle(): string {
+    if (this.form.category_id === 1) return 'Tipos de Habitaciones';
+    if (this.form.category_id === 2) return 'Menú / Platillos';
+    if (this.form.category_id === 3) return 'Tours / Actividades Especiales';
+    return 'Precios Personalizados';
+  }
+
+  getCustomPricesExample(): string {
+    if (this.form.category_id === 1) return 'Ej: "Habitación Master: $1500"';
+    if (this.form.category_id === 2) return 'Ej: "Tacos de Camarón: $120"';
+    if (this.form.category_id === 3) return 'Ej: "Recorrido VIP: $500"';
+    return 'Ej: "Servicio Premium: $500"';
+  }
+
+  getCustomPricesPlaceholder(): string {
+    if (this.form.category_id === 1) return 'Nombre de la habitación';
+    if (this.form.category_id === 2) return 'Nombre del platillo';
+    if (this.form.category_id === 3) return 'Nombre de la actividad';
+    return 'Descripción';
   }
 
   editPlace(p: any): void {

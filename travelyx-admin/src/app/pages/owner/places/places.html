@@ -213,14 +213,26 @@
               <!-- Precios Personalizados (Flexibles) -->
               <div class="prices-section custom-prices-box" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
                 <div class="section-header-row">
-                  <h4>Precios Personalizados</h4>
+                  <h4>{{ getCustomPricesTitle() }}</h4>
                   <button class="btn btn-sm btn-primary" (click)="addCustomPrice()">+ Añadir Precio</button>
                 </div>
-                <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.8rem;">Ej: "Habitación Master: $1500" o "Tour VIP: $500"</p>
+                <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.8rem;">{{ getCustomPricesExample() }}</p>
                 
                 <div class="custom-price-list">
                   <div class="custom-price-row" *ngFor="let cp of form.custom_prices; let i = index">
-                    <input type="text" class="input-field" [(ngModel)]="cp.label" placeholder="Descripción (Ej: Habitación Doble)">
+                    
+                    <div class="cp-image-uploader">
+                      <input type="file" [id]="'cp-img-' + i" (change)="onCustomPriceImageSelected($event, i)" accept="image/*" style="display: none;">
+                      <label [for]="'cp-img-' + i" class="cp-img-label" *ngIf="!cp.image_url">
+                        <span>📷</span>
+                      </label>
+                      <div class="cp-img-preview" *ngIf="cp.image_url">
+                        <img [src]="cp.image_url">
+                        <button class="remove-cp-img" (click)="removeCustomPriceImage(i)">×</button>
+                      </div>
+                    </div>
+
+                    <input type="text" class="input-field" [(ngModel)]="cp.label" [placeholder]="getCustomPricesPlaceholder()">
                     <div class="price-input-wrap">
                       <span>$</span>
                       <input type="number" [(ngModel)]="cp.price" placeholder="0">

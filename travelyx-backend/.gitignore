@@ -3,3 +3,5 @@ node_modules
 .env
 
 /generated/prisma
+travelyx_db_dump.sql
+travelyx_db_backup.zip
