@@ -19,7 +19,7 @@ import { HeaderComponent } from '../../components/header/header.component';
   templateUrl: './map.page.html',
   styleUrls: ['./map.page.scss'],
   standalone: true,
-  imports: [IonContent, IonModal, IonIcon, CommonModule, PollyComponent, HeaderComponent]
+  imports: [IonContent, IonModal, IonIcon, CommonModule, PollyComponent]
 })
 export class MapPage implements OnInit, OnDestroy {
   private map!: L.Map;
@@ -37,7 +37,7 @@ export class MapPage implements OnInit, OnDestroy {
   private activePlaceId: string | null = null;
 
   // Centro del Malecón (Kiosko)
-  private readonly center: L.LatLngExpression = [21.2882, -89.6580];
+  private readonly center: L.LatLngExpression = [21.288182, -89.662911];
 
   constructor(
     public langService: LanguageService,
@@ -295,7 +295,7 @@ export class MapPage implements OnInit, OnDestroy {
       }).addTo(this.map);
     } else {
       // Fallback a línea recta si no existe la ruta en el archivo json
-      const kioskCoords: L.LatLngTuple = [21.2882, -89.6580];
+      const kioskCoords: L.LatLngTuple = [21.288182, -89.662911];
       const finalCoords: L.LatLngTuple = [place.lat, place.lng];
       
       this.currentRoute = L.polyline([kioskCoords, finalCoords], {
@@ -331,7 +331,7 @@ export class MapPage implements OnInit, OnDestroy {
     if (!this.selectedPlaceForQr) return;
     
     // Generar URL de Google Maps
-    const origin = '21.2882,-89.6580';
+    const origin = '21.288182,-89.662911';
     const dest = `${this.selectedPlaceForQr.lat},${this.selectedPlaceForQr.lng}`;
     const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=driving`;
     

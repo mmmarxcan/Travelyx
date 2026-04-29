@@ -11,6 +11,7 @@ import { LanguageService } from '../../services/language.service';
 import { PollyService } from '../../services/polly.service';
 import { PreferencesService } from '../../services/preferences.service';
 import { PlacesService, Place } from '../../services/places';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-results',
@@ -48,7 +49,8 @@ export class ResultsPage implements OnInit {
     private prefService: PreferencesService,
     private placesService: PlacesService,
     private navCtrl: NavController,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({ closeOutline });
   }
@@ -70,6 +72,10 @@ export class ResultsPage implements OnInit {
         : 'I found these amazing options for you! Which one would you like to visit?';
       this.pollyService.speak(msg, 'HAPPY');
     }, 800);
+
+    this.langService.currentLang$.subscribe(() => {
+      this.cdr.detectChanges();
+    });
   }
 
   loadResults() {

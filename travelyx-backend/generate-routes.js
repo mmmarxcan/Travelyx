@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const KIOSK_LNG = -89.6580;
-const KIOSK_LAT = 21.2882;
+const KIOSK_LNG = -89.662911;
+const KIOSK_LAT = 21.288182;
 
 async function generateRoutes() {
   console.log('Obteniendo lugares del backend local...');

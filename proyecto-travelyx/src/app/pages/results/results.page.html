@@ -144,7 +144,7 @@
               <div class="dish-price">${{ dish.price }}</div>
             </div>
             <div class="dish-info">
-              <h3>{{ dish.label }}</h3>
+              <h3>{{ langService.currentLang === 'en' && dish.label_en ? dish.label_en : dish.label }}</h3>
             </div>
           </div>
         </div>
@@ -185,7 +185,7 @@
           <div class="price-item-card" *ngFor="let item of selectedPlace?.custom_prices">
             <div class="price-item-icon">🏨</div>
             <div class="price-item-info">
-              <h3>{{ item.label }}</h3>
+              <h3>{{ langService.currentLang === 'en' && item.label_en ? item.label_en : item.label }}</h3>
               <p>{{ langService.currentLang === 'es' ? 'Costo por noche/persona' : 'Cost per night/person' }}</p>
             </div>
             <div class="price-item-value">${{ item.price }}</div>

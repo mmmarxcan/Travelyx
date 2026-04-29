@@ -116,15 +116,18 @@ export class PollyComponent implements OnInit, OnDestroy, AfterViewInit {
   private handleSpeechEnd() {
     this.speechFinished = true;
 
-    // Actualizar la animación a idle mientras el texto sigue visible
+    // Actualizar la animación a idle
     this.mascotImage = this.POLLY_STATES['IDLE'];
     this.mascotStateClass = 'idle-anim';
 
-    // Si el typewriter ya terminó de escribir, podemos actuar de inmediato
-    if (!this.showCursor) {
-      this.afterBothFinished();
+    // Si el typewriter aún escribe cuando la voz termina, forzar que termine al instante
+    if (this.showCursor) {
+      if (this.typingTimeout) clearTimeout(this.typingTimeout);
+      this.pollyText = this.currentMsg?.text || '';
+      this.showCursor = false;
     }
-    // Si el typewriter aún escribe, esperamos a que termine (ver callback en typeWriter)
+    
+    this.afterBothFinished();
   }
 
   /**

@@ -160,7 +160,7 @@ export class OwnerPlaces implements OnInit {
   }
 
   addCustomPrice() {
-    this.form.custom_prices.push({ label: '', price: 0, image_url: '' });
+    this.form.custom_prices.push({ label: '', label_en: '', price: 0, image_url: '' });
   }
 
   removeCustomPrice(index: number) {
