@@ -56,42 +56,53 @@ export class PlacesService {
   }
 
   private mapToPlace(p: any): Place {
-    const type = this.mapType(p.category?.slug);
-    
-    // Buscar descripciones y primera imagen
-    const descEs = p.translations?.find((t: any) => t.language_code === 'es')?.description || p.description || '';
-    const descEn = p.translations?.find((t: any) => t.language_code === 'en')?.description || '';
-    
-    const imageList = p.images && p.images.length > 0 ? p.images.map((i: any) => i.image_url) : [];
-    const mainImage = imageList.length > 0 ? imageList[0] : null;
+    try {
+      const type = this.mapType(p.category?.slug);
+      
+      const descEs = p.translations?.find((t: any) => t.language_code === 'es')?.description || p.description || '';
+      const descEn = p.translations?.find((t: any) => t.language_code === 'en')?.description || '';
+      
+      const imageList = p.images && p.images.length > 0 ? p.images.map((i: any) => i.image_url) : [];
+      const mainImage = imageList.length > 0 ? imageList[0] : null;
 
-    return {
-      id: p.id.toString(),
-      name: p.name,
-      type: type,
-      lat: p.lat,
-      lng: p.lng,
-      icon: p.icon || this.getDefaultIcon(type),
-      description: {
-        es: descEs || 'Sin descripción disponible.',
-        en: descEn || descEs || 'No description available.' 
-      },
-      // Campos extendidos
-      stars: p.stars,
-      price_range: p.price_range,
-      accommodation_type: p.accommodation_type,
-      cuisine: p.cuisine,
-      delivery: p.delivery,
-      requires_reservation: p.requires_reservation,
-      price_adult: p.price_adult,
-      price_child: p.price_child,
-      price_local: p.price_local,
-      estimated_duration: p.estimated_duration,
-      image: mainImage,
-      images: imageList,
-      dishes: p.dishes,
-      custom_prices: p.custom_prices ? JSON.parse(p.custom_prices) : []
-    };
+      return {
+        id: p.id?.toString() || Math.random().toString(),
+        name: p.name || 'Sin nombre',
+        type: type,
+        lat: Number(p.lat) || 0,
+        lng: Number(p.lng) || 0,
+        icon: p.icon || this.getDefaultIcon(type),
+        description: {
+          es: descEs || 'Sin descripción disponible.',
+          en: descEn || descEs || 'No description available.' 
+        },
+        stars: p.stars,
+        price_range: p.price_range,
+        accommodation_type: p.accommodation_type,
+        cuisine: p.cuisine,
+        delivery: !!p.delivery,
+        requires_reservation: !!p.requires_reservation,
+        price_adult: p.price_adult,
+        price_child: p.price_child,
+        price_local: p.price_local,
+        estimated_duration: p.estimated_duration,
+        image: mainImage,
+        images: imageList,
+        dishes: p.dishes || [],
+        custom_prices: typeof p.custom_prices === 'string' ? JSON.parse(p.custom_prices) : (p.custom_prices || [])
+      };
+    } catch (e) {
+      console.error('Error mapping place:', e, p);
+      return {
+        id: 'error-' + Math.random(),
+        name: 'Error al cargar',
+        type: 'tourism',
+        lat: 0,
+        lng: 0,
+        icon: '⚠️',
+        description: { es: 'Error de datos', en: 'Data error' }
+      } as any;
+    }
   }
 
   private mapType(slug: string): 'hotel' | 'restaurant' | 'tourism' {

@@ -81,14 +81,6 @@ export class PollyService {
     this.speechEndSubject.next();
   }
 
-  toggleMute() {
-    this.isMuted = !this.isMuted;
-    if (this.isMuted) {
-      this.stopKeepAlive();
-      this.synth.cancel();
-      this.resolvePending();
-    }
-  }
 
   /** Resuelve y limpia la promesa pendiente si existe */
   private resolvePending() {

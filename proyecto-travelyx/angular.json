@@ -76,7 +76,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "allowedHosts": ["all"]
+            "allowedHosts": ["all", "onstage-balmy-enlarging.ngrok-free.dev", "2fdcfcae32d80b.lhr.life"]
           },
           "configurations": {
             "production": {

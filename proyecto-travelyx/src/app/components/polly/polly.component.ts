@@ -5,7 +5,7 @@ import { LanguageService } from '../../services/language.service';
 import { Subscription } from 'rxjs';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { musicalNotes, volumeMute, qrCodeOutline } from 'ionicons/icons';
+import { qrCodeOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-polly',
@@ -15,7 +15,7 @@ import { musicalNotes, volumeMute, qrCodeOutline } from 'ionicons/icons';
   imports: [CommonModule, IonIcon]
 })
 export class PollyComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('muteBtn', { static: false }) muteBtnRef!: ElementRef;
+
 
   public pollyText = '';
   public showBubble = false;
@@ -46,7 +46,7 @@ export class PollyComponent implements OnInit, OnDestroy, AfterViewInit {
     public langService: LanguageService,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ musicalNotes, volumeMute, qrCodeOutline });
+    addIcons({ qrCodeOutline });
   }
 
   ngOnInit() {
@@ -70,9 +70,7 @@ export class PollyComponent implements OnInit, OnDestroy, AfterViewInit {
     this.pollyService.speak(this.langService.translate('poke'), 'EXCITED');
   }
 
-  toggleMute(event?: Event) {
-    this.pollyService.toggleMute();
-  }
+
 
   private handleSpeak(msg: PollyMessage) {
     // Si el mensaje está vacío, es una señal de stop()

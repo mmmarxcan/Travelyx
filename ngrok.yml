@@ -1,0 +1,9 @@
+version: "2"
+authtoken: 3CsM5ge1SixYuF2LGIAS8wU9SpY_5cS4MXropXdJMH2MP7VPU
+tunnels:
+  backend:
+    proto: http
+    addr: 3000
+  kiosk:
+    proto: http
+    addr: 4200

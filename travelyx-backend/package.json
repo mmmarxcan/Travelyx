@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "node seed.js",
-    "dev": "nodemon --ext ts --exec \"set DATABASE_URL=postgresql://postgres:1234578a@localhost:5432/travelyx_db?schema=public && npx ts-node src/index.ts\""
+    "build": "npx tsc --outDir dist --skipLibCheck",
+    "start": "set DATABASE_URL=postgresql://postgres:1234578a@localhost:5432/travelyx_db?schema=public && node dist/src/index.js",
+    "dev": "nodemon --ext ts --exec \"set DATABASE_URL=postgresql://postgres:1234578a@localhost:5432/travelyx_db?schema=public && npx ts-node --max-old-space-size=512 src/index.ts\""
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
