@@ -22,13 +22,13 @@ export class PollyComponent implements OnInit, OnDestroy, AfterViewInit {
   public showCursor = false;
   public showQrOptions = false;
   public mascotStateClass = 'idle-anim';
-  public mascotImage = 'assets/polly/PULPITO 2.png';
+  public mascotImage = 'assets/polly/polly.png';
 
   private POLLY_STATES: Record<string, string> = {
-    'IDLE': 'assets/polly/PULPITO 2.png',
-    'TALK': 'assets/polly/PULPITO 3.png',
-    'HAPPY': 'assets/polly/PULPITO 4.png',
-    'EXCITED': 'assets/polly/PULPITO 7.png'
+    'IDLE': 'assets/polly/polly.png',
+    'TALK': 'assets/polly/polly_hablando.png',
+    'HAPPY': 'assets/polly/polly_feliz.png',
+    'EXCITED': 'assets/polly/polly_feliz.png'
   };
 
   private sub!: Subscription;

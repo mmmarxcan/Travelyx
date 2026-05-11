@@ -217,6 +217,7 @@
     width: 170px; /* Reducción ligera para que no devore la tarjeta */
     height: 170px;
     --bubble-offsetX: 85px; /* Aumentamos el offset porque Polly se fue a la derecha */
+    --bubble-top: 5%; /* Elevamos la burbuja para evitar que tape el contenido de la vista mapa */
     z-index: 110;
     pointer-events: none;
     
