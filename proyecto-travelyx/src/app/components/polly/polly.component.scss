@@ -27,7 +27,7 @@
 .speech-bubble {
     position: fixed;
     top: var(--bubble-top, 15%);
-    bottom: auto;
+    bottom: var(--bubble-bottom, auto);
     left: 50%;
     z-index: 1000;
     transform: translateX(calc(-50% - var(--bubble-offsetX, 0px))) translateY(0);

@@ -77,4 +77,5 @@
 /* Hacer que Polly se vea inmensa solo en la vista de Home */
 app-polly {
     --polly-size: clamp(600px, 150vw, 1200px);
+    --bubble-top: -2%; /* Elevar el diálogo aún más para que no tape la imagen */
 }
