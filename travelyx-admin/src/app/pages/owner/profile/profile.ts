@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth';
+import { API_BASE_URL } from '../../../config';
 
 @Component({
   selector: 'app-owner-profile',
@@ -45,7 +46,7 @@ export class OwnerProfile implements OnInit {
 
     this.isSaving = true;
 
-    this.http.post('http://localhost:3000/api/auth/change-password', {
+    this.http.post(`${API_BASE_URL}/auth/change-password`, {
       email:       this.ownerEmail,
       oldPassword: this.oldPassword,
       newPassword: this.newPassword

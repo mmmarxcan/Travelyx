@@ -28,12 +28,18 @@ router.get('/seed-admin', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
+  // Prevenir caché de la respuesta de login
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Faltan credenciales' });
     }
+
+    // Sanitización básica: Trim y limpieza
+    email = email.trim().toLowerCase();
+    password = password.trim();
 
     // Buscar el usuario en la base de datos
     const user = await prisma.user.findUnique({
@@ -44,11 +50,52 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
+    // Comprobar si la cuenta está bloqueada
+    if (user.locked_until && user.locked_until > new Date()) {
+      return res.status(403).json({ 
+        error: 'Cuenta bloqueada por múltiples intentos fallidos', 
+        code: 'ACCOUNT_LOCKED',
+        locked_until: user.locked_until 
+      });
+    }
+
     // Validar la contraseña
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+      // Incrementar intentos fallidos
+      const newAttempts = user.failed_attempts + 1;
+      let updateData: any = { failed_attempts: newAttempts };
+      
+      if (newAttempts >= 3) {
+        // Bloquear por 30 minutos
+        const lockoutDate = new Date();
+        lockoutDate.setMinutes(lockoutDate.getMinutes() + 30);
+        updateData.locked_until = lockoutDate;
+      }
+      
+      await prisma.user.update({
+        where: { id: user.id },
+        data: updateData
+      });
+
+      if (newAttempts >= 3) {
+        return res.status(403).json({ 
+          error: 'Cuenta bloqueada por 30 minutos. Intente más tarde.', 
+          code: 'ACCOUNT_LOCKED',
+          locked_until: updateData.locked_until 
+        });
+      }
+
+      return res.status(401).json({ error: `Credenciales inválidas. Te quedan ${3 - newAttempts} intentos.` });
+    }
+
+    // Contraseña correcta: Resetear intentos y bloqueos
+    if (user.failed_attempts > 0 || user.locked_until) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { failed_attempts: 0, locked_until: null }
+      });
     }
 
     // Generar Token JWT

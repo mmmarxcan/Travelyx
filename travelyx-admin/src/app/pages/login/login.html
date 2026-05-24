@@ -16,13 +16,22 @@
 
       <form class="login-form" (ngSubmit)="onLogin()">
 
-        <div *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</div>
+        <div *ngIf="errorMessage && !isLocked" class="error-msg">{{ errorMessage }}</div>
+
+        <div *ngIf="isLocked" class="error-msg locked-msg" style="background: #ffebee; border-left: 4px solid #f44336; color: #b71c1c; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+          <span style="font-size: 1.5rem; display: block; margin-bottom: 5px;">🔒</span>
+          <strong>Cuenta bloqueada por seguridad</strong><br>
+          <span style="font-size: 0.9rem;">Múltiples intentos fallidos.</span><br>
+          <span style="display: inline-block; margin-top: 8px; background: #f44336; color: white; padding: 4px 12px; border-radius: 12px; font-weight: bold; letter-spacing: 1px;">
+            {{ countdownText }}
+          </span>
+        </div>
 
         <div class="form-group">
           <label for="email">Correo Electrónico</label>
           <div class="input-wrapper">
             <input type="email" id="email" name="email" [(ngModel)]="email"
-                   placeholder="correo@ejemplo.com" autofocus required>
+                   placeholder="correo@ejemplo.com" autofocus required [disabled]="isLocked">
           </div>
         </div>
 
@@ -30,11 +39,11 @@
           <label for="password">Contraseña</label>
           <div class="input-wrapper">
             <input type="password" id="password" name="password" [(ngModel)]="password"
-                   placeholder="••••••••" required>
+                   placeholder="••••••••" required [disabled]="isLocked">
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-pill btn-block" [disabled]="isLoading">
+        <button type="submit" class="btn btn-primary btn-pill btn-block" [disabled]="isLoading || isLocked">
           {{ isLoading ? 'Verificando...' : 'Iniciar Sesión' }}
         </button>
       </form>

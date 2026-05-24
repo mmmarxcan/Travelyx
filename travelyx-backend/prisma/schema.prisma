@@ -31,6 +31,8 @@ model User {
   is_active             Boolean  @default(true)
   must_change_password  Boolean  @default(true)
   created_at            DateTime @default(now())
+  failed_attempts       Int      @default(0)
+  locked_until          DateTime?
   places                Place[]
 }
 

@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "node seed.js",
     "build": "npx tsc --outDir dist --skipLibCheck",
-    "start": "set DATABASE_URL=postgresql://postgres:1234578a@localhost:5432/travelyx_db?schema=public && node dist/src/index.js",
+    "start": "node dist/src/index.js",
     "dev": "nodemon --ext ts --exec \"ts-node src/index.ts\""
   },
   "prisma": {

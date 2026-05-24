@@ -23,6 +23,8 @@ export class AuthService {
   // ── Limpiar sesión ────────────────────────────────────────────
   logout(): void {
     Object.values(this.KEYS).forEach(k => localStorage.removeItem(k));
+    // Forzar recarga limpia y reemplazar historial para evitar ver datos cacheados con el botón "Atrás"
+    window.location.replace('/login');
   }
 
   // ── Getters ───────────────────────────────────────────────────

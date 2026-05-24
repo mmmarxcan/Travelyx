@@ -1,9 +1,10 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { API_BASE_URL } from '../../config';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +13,7 @@ import { AuthService } from '../../services/auth';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
+export class Login implements OnDestroy {
   email = '';
   password = '';
   newPassword = '';
@@ -20,6 +21,12 @@ export class Login {
   errorMessage = '';
   isLoading = false;
   mustChangePassword = false;
+
+  // Variables para bloqueo de seguridad
+  isLocked = false;
+  countdownText = '';
+  lockoutDate: Date | null = null;
+  private timerInterval: any;
 
   // Guardamos la contraseña temporal internamente para no perderla
   private _tempPassword = '';
@@ -40,7 +47,7 @@ export class Login {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.http.post<any>('http://localhost:3000/api/auth/login', {
+    this.http.post<any>(`${API_BASE_URL}/auth/login`, {
       email: this.email,
       password: this.password
     }).subscribe({
@@ -64,10 +71,17 @@ export class Login {
       },
       error: (err) => {
         this.isLoading = false;
+        if (err.status === 403 && err.error?.code === 'ACCOUNT_LOCKED') {
+          this.isLocked = true;
+          this.lockoutDate = new Date(err.error.locked_until);
+          this.startLockoutTimer();
+          this.errorMessage = err.error.error || 'Cuenta bloqueada.';
+          this.cdr.detectChanges();
+          return;
+        }
         const msg = err.error?.error || 'Correo o contraseña incorrectos';
         this.errorMessage = msg;
         this.cdr.detectChanges();
-        alert('Error: ' + msg);
       }
     });
   }
@@ -89,14 +103,14 @@ export class Login {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.http.post<any>('http://localhost:3000/api/auth/change-password', {
+    this.http.post<any>(`${API_BASE_URL}/auth/change-password`, {
       email:       this.email,
       oldPassword: this._tempPassword,   // usamos la guardada internamente
       newPassword: this.newPassword
     }).subscribe({
       next: () => {
         // Re-login automático con la nueva contraseña
-        this.http.post<any>('http://localhost:3000/api/auth/login', {
+        this.http.post<any>(`${API_BASE_URL}/auth/login`, {
           email:    this.email,
           password: this.newPassword
         }).subscribe({
@@ -133,5 +147,38 @@ export class Login {
     } else if (role === 'OWNER') {
       this.router.navigate(['/owner']);
     }
+  }
+
+  ngOnDestroy() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+  }
+
+  startLockoutTimer() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    
+    this.updateCountdown();
+    this.timerInterval = setInterval(() => {
+      this.updateCountdown();
+    }, 1000);
+  }
+
+  updateCountdown() {
+    if (!this.lockoutDate) return;
+    const now = new Date();
+    const diff = this.lockoutDate.getTime() - now.getTime();
+
+    if (diff <= 0) {
+      clearInterval(this.timerInterval);
+      this.isLocked = false;
+      this.countdownText = '';
+      this.errorMessage = '';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    this.countdownText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    this.cdr.detectChanges();
   }
 }
