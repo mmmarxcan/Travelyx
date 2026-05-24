@@ -18,7 +18,26 @@ router.get('/', async (req, res) => {
       },
       orderBy: { id: 'desc' }
     });
-    console.log(`📋 GET /api/places - Enviando ${places.length} lugares.`);
+    // 🔥 OPTIMIZAR: Reemplazar imágenes pesadas en base64 (>100KB) por placeholders ligeros de alta calidad
+    const optimizedPlaces = places.map(place => {
+      return {
+        ...place,
+        images: place.images.map(img => {
+          if (img.image_url.startsWith('data:image') && img.image_url.length > 100000) {
+            let placeholder = 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=400&q=80'; // Hotel
+            if (place.category?.slug === 'restaurant') {
+              placeholder = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80'; // Restaurante
+            } else if (place.category?.slug === 'tourist_spot') {
+              placeholder = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'; // Punto Turístico
+            }
+            return { ...img, image_url: placeholder };
+          }
+          return img;
+        })
+      };
+    });
+
+    console.log(`📋 GET /api/places - Enviando ${places.length} lugares optimizados.`);
     
     // 🔥 DISPARAR TRADUCCIÓN EN SEGUNDO PLANO PARA LOS QUE FALTE
     // TranslationService.processMissingTranslations(places);
@@ -29,7 +48,7 @@ router.get('/', async (req, res) => {
     res.setHeader('Expires', '0');
     res.removeHeader('ETag');
     
-    res.json(places);
+    res.json(optimizedPlaces);
   } catch (error) {
     console.error('❌ Error al listar lugares:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
@@ -58,13 +77,32 @@ router.get('/mine', async (req, res) => {
       orderBy: { id: 'desc' }
     });
     
+    // 🔥 OPTIMIZAR: Reemplazar imágenes pesadas en base64 (>100KB) por placeholders ligeros de alta calidad
+    const optimizedPlaces = places.map(place => {
+      return {
+        ...place,
+        images: place.images.map(img => {
+          if (img.image_url.startsWith('data:image') && img.image_url.length > 100000) {
+            let placeholder = 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=400&q=80'; // Hotel
+            if (place.category?.slug === 'restaurant') {
+              placeholder = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80'; // Restaurante
+            } else if (place.category?.slug === 'tourist_spot') {
+              placeholder = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'; // Punto Turístico
+            }
+            return { ...img, image_url: placeholder };
+          }
+          return img;
+        })
+      };
+    });
+    
     // Anticaché para el Propietario
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.removeHeader('ETag');
 
-    res.json(places);
+    res.json(optimizedPlaces);
   } catch (error) {
     console.error('Error al listar mis lugares:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
