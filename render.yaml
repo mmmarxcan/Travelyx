@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: travelyx-kiosk-planb
+    env: node
+    plan: free
+    rootDir: travelyx-backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://postgres:haruka-yuto1@db.prlkcxbmjnvnokbqoift.supabase.co:5432/postgres?schema=public
+      - key: PORT
+        value: 10000
