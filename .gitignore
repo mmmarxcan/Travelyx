@@ -2,7 +2,7 @@
 node_modules/
 .angular/
 .ionic/
-dist/
+# dist/
 # www/
 
 # Build artifacts
