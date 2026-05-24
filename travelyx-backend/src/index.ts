@@ -32,7 +32,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/places', placesRoutes);
 
 // Serve Angular production build
-const frontendPath = path.join(__dirname, '../../proyecto-travelyx/www');
+const frontendPath = path.join(process.cwd(), 'www');
 app.use(express.static(frontendPath));
 
 // Fallback to index.html for Angular client-side routing
