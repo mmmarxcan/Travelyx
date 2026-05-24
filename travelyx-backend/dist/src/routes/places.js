@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const db_1 = __importDefault(require("../db"));
-const translation_1 = require("../services/translation");
 const router = (0, express_1.Router)();
 // ── Listar todos los lugares (SuperAdmin / Kiosko) ──────────────────────────
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -32,7 +31,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         console.log(`📋 GET /api/places - Enviando ${places.length} lugares.`);
         // 🔥 DISPARAR TRADUCCIÓN EN SEGUNDO PLANO PARA LOS QUE FALTE
-        translation_1.TranslationService.processMissingTranslations(places);
+        // TranslationService.processMissingTranslations(places);
         // FORZAR ANTI-CACHÉ TOTAL
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.setHeader('Pragma', 'no-cache');

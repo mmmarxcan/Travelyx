@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
     console.log(`📋 GET /api/places - Enviando ${places.length} lugares.`);
     
     // 🔥 DISPARAR TRADUCCIÓN EN SEGUNDO PLANO PARA LOS QUE FALTE
-    TranslationService.processMissingTranslations(places);
+    // TranslationService.processMissingTranslations(places);
 
     // FORZAR ANTI-CACHÉ TOTAL
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
