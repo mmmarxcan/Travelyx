@@ -89,7 +89,7 @@ export class PlacesService {
         image: mainImage,
         images: imageList,
         dishes: p.dishes || [],
-        custom_prices: typeof p.custom_prices === 'string' ? JSON.parse(p.custom_prices) : (p.custom_prices || [])
+        custom_prices: p.custom_prices && typeof p.custom_prices === 'string' && p.custom_prices.trim() !== '' ? JSON.parse(p.custom_prices) : []
       };
     } catch (e) {
       console.error('Error mapping place:', e, p);
