@@ -20,8 +20,32 @@ router.get('/', async (req, res) => {
     });
     // 🔥 OPTIMIZAR: Reemplazar imágenes pesadas en base64 (>100KB) por placeholders ligeros de alta calidad
     const optimizedPlaces = places.map(place => {
+      // Optimizar imágenes en custom_prices
+      let optimizedCustomPrices = place.custom_prices;
+      if (place.custom_prices) {
+        try {
+          const parsed = JSON.parse(place.custom_prices);
+          if (Array.isArray(parsed)) {
+            const mapped = parsed.map(item => {
+              if (item.image_url && item.image_url.startsWith('data:image') && item.image_url.length > 100000) {
+                let placeholder = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80'; // Habitación / genérico
+                if (place.category?.slug === 'restaurant') {
+                  placeholder = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80'; // Platillo / comida
+                }
+                return { ...item, image_url: placeholder };
+              }
+              return item;
+            });
+            optimizedCustomPrices = JSON.stringify(mapped);
+          }
+        } catch (err) {
+          console.error(`Error parsing custom_prices for place #${place.id}:`, err);
+        }
+      }
+
       return {
         ...place,
+        custom_prices: optimizedCustomPrices,
         images: place.images.map(img => {
           if (img.image_url.startsWith('data:image') && img.image_url.length > 100000) {
             let placeholder = 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=400&q=80'; // Hotel
@@ -79,8 +103,32 @@ router.get('/mine', async (req, res) => {
     
     // 🔥 OPTIMIZAR: Reemplazar imágenes pesadas en base64 (>100KB) por placeholders ligeros de alta calidad
     const optimizedPlaces = places.map(place => {
+      // Optimizar imágenes en custom_prices
+      let optimizedCustomPrices = place.custom_prices;
+      if (place.custom_prices) {
+        try {
+          const parsed = JSON.parse(place.custom_prices);
+          if (Array.isArray(parsed)) {
+            const mapped = parsed.map(item => {
+              if (item.image_url && item.image_url.startsWith('data:image') && item.image_url.length > 100000) {
+                let placeholder = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80'; // Habitación / genérico
+                if (place.category?.slug === 'restaurant') {
+                  placeholder = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80'; // Platillo / comida
+                }
+                return { ...item, image_url: placeholder };
+              }
+              return item;
+            });
+            optimizedCustomPrices = JSON.stringify(mapped);
+          }
+        } catch (err) {
+          console.error(`Error parsing custom_prices for place #${place.id}:`, err);
+        }
+      }
+
       return {
         ...place,
+        custom_prices: optimizedCustomPrices,
         images: place.images.map(img => {
           if (img.image_url.startsWith('data:image') && img.image_url.length > 100000) {
             let placeholder = 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=400&q=80'; // Hotel

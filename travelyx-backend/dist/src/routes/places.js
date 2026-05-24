@@ -31,7 +31,31 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         // 🔥 OPTIMIZAR: Reemplazar imágenes pesadas en base64 (>100KB) por placeholders ligeros de alta calidad
         const optimizedPlaces = places.map(place => {
-            return Object.assign(Object.assign({}, place), { images: place.images.map(img => {
+            // Optimizar imágenes en custom_prices
+            let optimizedCustomPrices = place.custom_prices;
+            if (place.custom_prices) {
+                try {
+                    const parsed = JSON.parse(place.custom_prices);
+                    if (Array.isArray(parsed)) {
+                        const mapped = parsed.map(item => {
+                            var _a;
+                            if (item.image_url && item.image_url.startsWith('data:image') && item.image_url.length > 100000) {
+                                let placeholder = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80'; // Habitación / genérico
+                                if (((_a = place.category) === null || _a === void 0 ? void 0 : _a.slug) === 'restaurant') {
+                                    placeholder = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80'; // Platillo / comida
+                                }
+                                return Object.assign(Object.assign({}, item), { image_url: placeholder });
+                            }
+                            return item;
+                        });
+                        optimizedCustomPrices = JSON.stringify(mapped);
+                    }
+                }
+                catch (err) {
+                    console.error(`Error parsing custom_prices for place #${place.id}:`, err);
+                }
+            }
+            return Object.assign(Object.assign({}, place), { custom_prices: optimizedCustomPrices, images: place.images.map(img => {
                     var _a, _b;
                     if (img.image_url.startsWith('data:image') && img.image_url.length > 100000) {
                         let placeholder = 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=400&q=80'; // Hotel
@@ -84,7 +108,31 @@ router.get('/mine', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
         // 🔥 OPTIMIZAR: Reemplazar imágenes pesadas en base64 (>100KB) por placeholders ligeros de alta calidad
         const optimizedPlaces = places.map(place => {
-            return Object.assign(Object.assign({}, place), { images: place.images.map(img => {
+            // Optimizar imágenes en custom_prices
+            let optimizedCustomPrices = place.custom_prices;
+            if (place.custom_prices) {
+                try {
+                    const parsed = JSON.parse(place.custom_prices);
+                    if (Array.isArray(parsed)) {
+                        const mapped = parsed.map(item => {
+                            var _a;
+                            if (item.image_url && item.image_url.startsWith('data:image') && item.image_url.length > 100000) {
+                                let placeholder = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80'; // Habitación / genérico
+                                if (((_a = place.category) === null || _a === void 0 ? void 0 : _a.slug) === 'restaurant') {
+                                    placeholder = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80'; // Platillo / comida
+                                }
+                                return Object.assign(Object.assign({}, item), { image_url: placeholder });
+                            }
+                            return item;
+                        });
+                        optimizedCustomPrices = JSON.stringify(mapped);
+                    }
+                }
+                catch (err) {
+                    console.error(`Error parsing custom_prices for place #${place.id}:`, err);
+                }
+            }
+            return Object.assign(Object.assign({}, place), { custom_prices: optimizedCustomPrices, images: place.images.map(img => {
                     var _a, _b;
                     if (img.image_url.startsWith('data:image') && img.image_url.length > 100000) {
                         let placeholder = 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=400&q=80'; // Hotel
