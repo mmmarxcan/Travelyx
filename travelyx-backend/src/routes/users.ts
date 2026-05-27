@@ -1,13 +1,17 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../db';
 import crypto from 'crypto';
+import { body, validationResult } from 'express-validator';
+import { authenticateToken, requireRole } from '../middlewares/auth.middleware';
+import logger from '../utils/logger';
 
 const router = Router();
 
-// Listar todos los dueños (OWNER)
-router.get('/', async (req, res) => {
+// Listar todos los dueños (Solo SUPERADMIN)
+router.get('/', authenticateToken, requireRole('SUPERADMIN'), async (req, res) => {
   try {
+    logger.info(`Acceso a lista de usuarios por Admin: ${(req as any).user.email}`);
     const owners = await prisma.user.findMany({
       where: { role: 'OWNER' },
       select: {
@@ -32,15 +36,20 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Crear un nuevo dueño (OWNER)
-router.post('/', async (req, res) => {
+// Crear un nuevo dueño (Solo SUPERADMIN)
+router.post('/', authenticateToken, requireRole('SUPERADMIN'), [
+  body('email').isEmail().normalizeEmail(),
+  body('full_name').notEmpty().trim().escape(),
+  body('phone').optional().trim().escape()
+], async (req: Request, res: Response): Promise<any> => {
   try {
-    const { email, full_name, phone } = req.body;
-    console.log('POST /api/users - Creating user:', { email, full_name });
-
-    if (!email) {
-      return res.status(400).json({ error: 'El email es obligatorio' });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
+
+    const { email, full_name, phone } = req.body;
+    logger.info(`Admin ${(req as any).user.email} está intentando crear el usuario: ${email}`);
 
     // Verificar si ya existe
     const existingUser = await prisma.user.findUnique({
@@ -93,12 +102,19 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Cambiar estado (Activo/Inactivo)
-router.patch('/:id/status', async (req, res) => {
+// Cambiar estado (Activo/Inactivo) - Solo SUPERADMIN
+router.patch('/:id/status', authenticateToken, requireRole('SUPERADMIN'), [
+  body('is_active').isBoolean()
+], async (req: Request, res: Response): Promise<any> => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const { id } = req.params;
     const { is_active } = req.body;
-    console.log(`[BACKEND] Updating status for user ID: ${id} to is_active: ${is_active}`);
+    logger.info(`Admin ${(req as any).user.email} cambió el estado del usuario ID ${id} a ${is_active}`);
 
     const updatedUser = await prisma.user.update({
       where: { id: Number(id) },

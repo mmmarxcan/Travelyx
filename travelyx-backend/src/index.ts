@@ -1,11 +1,17 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middlewares
+// Aplicar cabeceras de seguridad estrictas, pero permitiendo cross-origin para la API
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+// Configurar CORS para restringir dominios (ahora abierto localmente)
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -19,6 +25,8 @@ app.use((req, res, next) => {
 import authRoutes from './routes/auth';
 import usersRoutes from './routes/users';
 import placesRoutes from './routes/places';
+import logsRoutes from './routes/logs';
+import uploadsRoutes from './routes/uploads';
 import path from 'path';
 
 // Basic Route
@@ -30,13 +38,28 @@ app.get('/api', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/places', placesRoutes);
+app.use('/api/logs', logsRoutes);
+app.use('/api/uploads', uploadsRoutes);
+
+// Restricción de acceso a directorios:
+// Servir estáticos de subidas SIN PERMITIR EJECUCIÓN (setHeaders elimina mime types peligrosos)
+const uploadsPath = path.join(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsPath, {
+  setHeaders: (res, filePath) => {
+    // Evitar que el navegador trate de adivinar el content type y ejecute un script disfrazado
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  }
+}));
 
 // Serve Angular production build
 const frontendPath = path.join(process.cwd(), 'www');
 app.use(express.static(frontendPath));
 
 // Fallback to index.html for Angular client-side routing
-app.use((req, res) => {
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
+    return next();
+  }
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 

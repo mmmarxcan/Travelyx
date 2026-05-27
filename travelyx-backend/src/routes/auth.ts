@@ -1,8 +1,10 @@
 import 'dotenv/config';
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import prisma from '../db';
+import { body, validationResult } from 'express-validator';
+import logger from '../utils/logger';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'secreto_super_seguro_travelyx_123';
@@ -27,19 +29,20 @@ router.get('/seed-admin', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', [
+  body('email').isEmail().withMessage('Debe ser un correo válido').normalizeEmail(),
+  body('password').notEmpty().withMessage('La contraseña es obligatoria').trim()
+], async (req: Request, res: Response): Promise<any> => {
   // Prevenir caché de la respuesta de login
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   try {
-    let { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Faltan credenciales' });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.warn(`Intento de login con formato inválido desde IP: ${req.ip}`);
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    // Sanitización básica: Trim y limpieza
-    email = email.trim().toLowerCase();
-    password = password.trim();
+    const { email, password } = req.body;
 
     // Buscar el usuario en la base de datos
     const user = await prisma.user.findUnique({
@@ -47,11 +50,13 @@ router.post('/login', async (req, res) => {
     });
 
     if (!user) {
+      logger.warn(`Fallo de autenticación: Usuario no encontrado (${email}) desde IP: ${req.ip}`);
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
     // Comprobar si la cuenta está bloqueada
     if (user.locked_until && user.locked_until > new Date()) {
+      logger.warn(`Fallo de autenticación: Cuenta bloqueada (${email}) intentó acceder desde IP: ${req.ip}`);
       return res.status(403).json({ 
         error: 'Cuenta bloqueada por múltiples intentos fallidos', 
         code: 'ACCOUNT_LOCKED',
@@ -80,6 +85,7 @@ router.post('/login', async (req, res) => {
       });
 
       if (newAttempts >= 3) {
+        logger.warn(`Seguridad: Cuenta bloqueada temporalmente por fuerza bruta (${email})`);
         return res.status(403).json({ 
           error: 'Cuenta bloqueada por 30 minutos. Intente más tarde.', 
           code: 'ACCOUNT_LOCKED',
@@ -87,6 +93,7 @@ router.post('/login', async (req, res) => {
         });
       }
 
+      logger.warn(`Fallo de autenticación: Contraseña incorrecta (${email}) desde IP: ${req.ip}. Intentos: ${newAttempts}`);
       return res.status(401).json({ error: `Credenciales inválidas. Te quedan ${3 - newAttempts} intentos.` });
     }
 
@@ -104,6 +111,8 @@ router.post('/login', async (req, res) => {
       JWT_SECRET,
       { expiresIn: '24h' }
     );
+
+    logger.info(`Login exitoso: Usuario ${user.email} autenticado desde IP: ${req.ip}`);
 
     res.json({
       message: 'Inicio de sesión exitoso',
@@ -123,13 +132,42 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/change-password', async (req, res) => {
-  try {
-    const { email, oldPassword, newPassword } = req.body;
+// ==========================================
+// RUTA DE PRUEBAS: Quitar bloqueo temporal
+// ==========================================
+router.post('/reset-lockout', async (req: Request, res: Response): Promise<any> => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Proporcione un email para desbloquear' });
+  }
 
-    if (!email || !oldPassword || !newPassword) {
-      return res.status(400).json({ error: 'Faltan datos' });
+  try {
+    await prisma.user.updateMany({
+      where: { email },
+      data: {
+        failed_attempts: 0,
+        locked_until: null
+      }
+    });
+    res.json({ message: 'Bloqueo eliminado exitosamente (Modo Pruebas)' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al intentar quitar el bloqueo' });
+  }
+});
+
+// Cambiar contraseña (Requiere saber la anterior)
+router.post('/change-password', [
+  body('email').isEmail().normalizeEmail(),
+  body('oldPassword').notEmpty(),
+  body('newPassword').isLength({ min: 8 }).withMessage('La nueva contraseña debe tener al menos 8 caracteres')
+], async (req: Request, res: Response): Promise<any> => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
+
+    const { email, oldPassword, newPassword } = req.body;
 
     const user = await prisma.user.findUnique({
       where: { email }

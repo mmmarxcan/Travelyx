@@ -5,6 +5,7 @@ import { Overview } from './pages/dashboard/overview/overview';
 import { Places } from './pages/dashboard/places/places';
 import { Users } from './pages/dashboard/users/users';
 import { Settings } from './pages/dashboard/settings/settings';
+import { SecurityLogs } from './pages/dashboard/security-logs/security-logs';
 import { OwnerLayout } from './pages/owner/layout/layout';
 import { OwnerDashboard } from './pages/owner/dashboard/dashboard';
 import { OwnerPlaces } from './pages/owner/places/places';
@@ -23,6 +24,7 @@ export const routes: Routes = [
       { path: '',        component: Overview  },
       { path: 'places',  component: Places    },
       { path: 'users',   component: Users     },
+      { path: 'logs',    component: SecurityLogs },
       { path: 'settings', component: Settings },
     ]
   },

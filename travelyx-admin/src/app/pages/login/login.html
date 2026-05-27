@@ -46,6 +46,10 @@
         <button type="submit" class="btn btn-primary btn-pill btn-block" [disabled]="isLoading || isLocked">
           {{ isLoading ? 'Verificando...' : 'Iniciar Sesión' }}
         </button>
+
+        <button *ngIf="isLocked" type="button" class="btn btn-outline btn-pill btn-block" style="margin-top: 10px; border-color: #f44336; color: #f44336;" (click)="resetLockout()">
+          Desbloquear Cuenta (Pruebas)
+        </button>
       </form>
     </div>
 

@@ -170,13 +170,26 @@ export class OwnerPlaces implements OnInit {
   onCustomPriceImageSelected(event: any, index: number): void {
     const files = event.target.files;
     if (files && files[0]) {
+      const file = files[0];
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        alert('Tipo de archivo no permitido. Solo se permiten imágenes (JPEG, PNG, WEBP).');
+        event.target.value = '';
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo supera el límite de 5MB.');
+        event.target.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
         if (!this.form.custom_prices[index]) return;
         this.form.custom_prices[index].image_url = e.target.result;
         this.cdr.detectChanges();
       };
-      reader.readAsDataURL(files[0]);
+      reader.readAsDataURL(file);
     }
   }
 
@@ -308,7 +321,17 @@ export class OwnerPlaces implements OnInit {
   onFileSelected(event: any): void {
     const files = event.target.files;
     if (files) {
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
       for (let file of files) {
+        if (!validTypes.includes(file.type)) {
+          alert(`El archivo ${file.name} no es una imagen permitida (JPEG, PNG, WEBP).`);
+          continue;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`El archivo ${file.name} supera el límite de 5MB.`);
+          continue;
+        }
+
         const reader = new FileReader();
         reader.onload = (e: any) => {
           this.galleryPreviews.push(e.target.result);
@@ -316,6 +339,8 @@ export class OwnerPlaces implements OnInit {
         };
         reader.readAsDataURL(file);
       }
+      // Limpiar input para permitir seleccionar el mismo archivo de nuevo si se borró
+      event.target.value = '';
     }
   }
 

@@ -1,0 +1,43 @@
+<div class="page-container glass-panel">
+  <div class="header-actions">
+    <h2>Logs de Seguridad</h2>
+    <button class="btn btn-primary" (click)="fetchLogs()" [disabled]="isLoading">
+      <span class="icon">🔄</span> Refrescar
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Cargando auditoría de seguridad...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-state">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && logs.length === 0" class="empty-state">
+    <p>No hay eventos de seguridad registrados.</p>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && logs.length > 0" class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Fecha y Hora</th>
+          <th>Nivel</th>
+          <th>Mensaje / Evento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of logs">
+          <td class="timestamp">{{ log.timestamp }}</td>
+          <td>
+            <span class="badge" [ngClass]="getBadgeClass(log.level)">
+              {{ log.level | uppercase }}
+            </span>
+          </td>
+          <td class="message">{{ log.message }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -181,4 +181,29 @@ export class Login implements OnDestroy {
     this.countdownText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     this.cdr.detectChanges();
   }
+
+  resetLockout() {
+    if (!this.email) {
+      alert('Ingresa tu correo primero para desbloquearlo.');
+      return;
+    }
+    
+    this.isLoading = true;
+    this.http.post<any>(`${API_BASE_URL}/auth/reset-lockout`, { email: this.email }).subscribe({
+      next: (res) => {
+        alert(res.message);
+        this.isLocked = false;
+        this.countdownText = '';
+        this.errorMessage = '';
+        this.isLoading = false;
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        alert(err.error?.error || 'Error al desbloquear');
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 }
