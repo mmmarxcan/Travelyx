@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { globalSanitizer } from './middlewares/sanitize.middleware';
+import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +16,7 @@ app.use(helmet({
 // Configurar CORS para restringir dominios (ahora abierto localmente)
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
+app.use(globalSanitizer);
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Header to bypass localhost.run tunnel warning page
